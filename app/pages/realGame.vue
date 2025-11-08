@@ -9,6 +9,7 @@ export default {
   name: "StickmanGame",
   data() {
     return {
+      trapCount : 0,
       stickman: {
         x: 100,
         y: 0,
@@ -29,9 +30,10 @@ export default {
       },
       stone: {
         x: window.innerWidth / 2,
-        y: 0,
-        velocityY: 7,
+        y: 0 - window.innerWidth / 2,
+        velocityY: 9,
         radius: window.innerWidth / 2,
+        active: false
       },
     };
   },
@@ -100,16 +102,22 @@ export default {
         this.stickman.isJumping = false;
       }
 
-      if (this.stone){
+      this.checkTrapEvent();
+
+      if (this.stone.active){
+        console.log("here");
         this.stoneTrap();
       }
 
       this.drawScene();
       this.animationFrame = requestAnimationFrame(this.animate);
     },
-
-    checkTrapEvent(){
-      return true;
+    
+    checkTrapEvent() {
+      if (this.trapCount === 0 && this.stickman.x >= this.canvasWidth / 2) {
+        this.stone.active = true;
+        this.trapCount += 1;
+      }
     },
 
     stoneTrap(){
@@ -120,18 +128,19 @@ export default {
       const dx = this.stickman.x - this.stone.x;
       const dy = (this.stickman.y - 30) - this.stone.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
-      if (distance < this.stone.radius + 5) {
+      if (this.stone && distance < this.stone.radius + 5) {
         this.resetStone();
+        navigateTo("./gameOver");
       }
 
       // Reset stone if it hits ground
-      if (this.stone.y > this.ground.y - this.stone.radius + 5) {
+      if (this.stone && this.stone.y > this.ground.y - this.stone.radius + 5) {
         this.resetStone();
       }
     },
 
     resetStone() {
-      this.stone = null;
+      this.stone.active = false;
     },
 
     drawScene() {
@@ -147,14 +156,12 @@ export default {
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      // Stone
-      if (this.checkTrapEvent()){
-        if (this.stone){
-          ctx.beginPath();    
-          ctx.arc(this.stone.x, this.stone.y, this.stone.radius, 0, Math.PI * 2);
-          ctx.fillStyle = "#555";
-          ctx.fill();
-        }
+      // Draw Stone
+      if (this.stone.active){
+        ctx.beginPath();    
+        ctx.arc(this.stone.x, this.stone.y, this.stone.radius, 0, Math.PI * 2);
+        ctx.fillStyle = "#555";
+        ctx.fill();
       }
 
       // Draw stickman
