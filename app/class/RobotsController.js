@@ -2,7 +2,7 @@ import Robot from "./Robot.js";
 
 export class RobotsController {
   robot_INTERVAL_MIN = 650;
-  robot_INTERVAL_MAX = 1450;
+  robot_INTERVAL_MAX = 1350;
 
   nextrobotInterval = 0;
   robots = [];

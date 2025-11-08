@@ -12,18 +12,18 @@ import { Triceratops  } from '~/class/Triceratops';
 import { RobotsController } from '~/class/RobotsController';
 import { Score } from '~/class/Score';
 
-    const GAME_WIDTH = 800;
-    const GAME_HEIGHT = 200;
-    const TRIC_WIDTH = 100;
-    const TRIC_HEIGHT = 60;
+    const GAME_WIDTH = 600;
+    const GAME_HEIGHT = 225;
+    const TRIC_WIDTH = 120;
+    const TRIC_HEIGHT = 72;
     const MAX_JUMP_HEIGHT = GAME_HEIGHT
     const MIN_JUMP_HEIGHT = 150
     const GAME_SPEED_START = 1;
-    const GAME_SPEED_INCREMENT = 0.00001;
+    const GAME_SPEED_INCREMENT = 0.00002;
     const ROBOT_SPEED = 0.5;
     const ROBOT_CONFIG = [
-        {width: 50, height: 50, image: "../assets/robot.png"},
-        {width: 50, height: 70, image: "../assets/robot_high.png"},
+        {width: 60, height: 60, image: "../assets/robot.png"},
+        {width: 60, height: 82, image: "../assets/robot_high.png"},
     ]
 
     const canvas = useTemplateRef('gameCanvas')
@@ -165,13 +165,31 @@ import { Score } from '~/class/Score';
         requestAnimationFrame(gameLoop);
     }
 
+    function story() {
+        ctx.fillStyle = "black"
+        ctx.fillRect( 50, 50, 500, 300) //pos x, pos y, width, height
+        ctx.fillStyle = "white"
+        ctx.fillRect( 55, 55, 490, 290)
+
+        const fontSize = 60
+        ctx.font = `${fontSize}px Verdana`;
+        ctx.fillStyle = "black";
+        const x = canvas.value.width / 7;
+        const y = canvas.value.height / 2;
+        ctx.fillText("Voici un test d'adresse,<br> faites de votre mieux !", x, y);
+    }
+
     function start() {
-        setScreen();
+        story()
 
-        requestAnimationFrame(gameLoop);
+        /*setTimeout(() => {
+            setScreen();
 
-        window.addEventListener("keyup", reset, { once: true });
-        window.addEventListener("touchstart", reset, { once: true });
+            requestAnimationFrame(gameLoop);
+
+            window.addEventListener("keyup", reset, { once: true });
+            window.addEventListener("touchstart", reset, { once: true });
+        }, 20000);*/
     }
 
 </script>
