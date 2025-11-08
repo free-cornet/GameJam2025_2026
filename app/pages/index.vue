@@ -10,11 +10,23 @@
 
       <!-- Progress Bar Container -->
       <div class="w-80 md:w-96 mx-auto mb-6">
-        <div class="bg-gray-700 rounded-full h-4 overflow-hidden shadow-lg">
+        <div class="relative bg-gray-700 rounded-full h-4 overflow-visible shadow-lg">
           <div
-            class="bg-gradient-to-r from-blue-400 to-purple-500 h-full rounded-full transition-all duration-500 ease-out"
+            class="bg-gradient-to-r from-blue-400 to-purple-500 h-full rounded-full transition-all duration-500 ease-out relative"
             :style="{ width: `${Math.min(100, displayPercentage)}%` }"
-          ></div>
+          >
+            <!-- Knight Image -->
+
+            <div
+              class="absolute top-1/2 -translate-y-1/2 right-0  w-24 h-20 duration-500 ease-out"
+              :style="{ top: 'calc(50% - 5px)' }"
+            ><img
+              src="../assets/knight.png"
+              alt="Knight"
+              class="absolute top-1/2 -translate-y-1/2 right-0 translate-x-1/2 w-24 h-20 duration-500 ease-out"
+              :style="{ transform: `translateY(-50%) translateX(50%) rotate(${Math.sin(percentage * 3.6)*100}deg)` }"
+            /></div>
+          </div>
         </div>
       </div>
 
