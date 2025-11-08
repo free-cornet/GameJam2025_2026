@@ -11,7 +11,7 @@
       
       <div class="space-y-4">
         <button 
-        @click="goToRealGame" 
+        @click="isOpen = true" 
         class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-300">
           Start Game
         </button>
@@ -24,16 +24,50 @@
         >
           Back to Loading
         </button>
+
+        <CaptchaImages
+          ref="captchaRef"
+          @verified="onCaptchaVerified"
+          @closed="onCaptchaClosed"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { ref, watch } from "vue";
+import CaptchaImages from "~/components/Captcha/Images.vue";
+
+const isOpen = ref(false);
+const captchaRef = ref(null);
+
 const goBack = () => {
-  navigateTo('/')
-}
+  navigateTo("/");
+};
+
 const goToRealGame = () => {
-  navigateTo('/realGame')
-}
+  navigateTo("/realGame");
+};
+
+const onCaptchaVerified = () => {
+  console.log("CAPTCHA verified!");
+  // Handle successful verification here
+  goToRealGame();
+};
+
+const onCaptchaClosed = () => {
+  console.log("CAPTCHA closed");
+  isOpen.value = false;
+};
+
+const startCaptcha = () => {
+  captchaRef.value?.openCaptcha();
+};
+
+watch(isOpen, (newValue) => {
+  if (newValue) {
+    startCaptcha();
+  }
+});
 </script>
