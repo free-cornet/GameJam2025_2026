@@ -10,7 +10,9 @@
       </p>
       
       <div class="space-y-4">
-        <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-300">
+        <button 
+        @click="goToRealGame" 
+        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-300">
           Start Game
         </button>
         
@@ -30,5 +32,8 @@
 <script setup>
 const goBack = () => {
   navigateTo('/')
+}
+const goToRealGame = () => {
+  navigateTo('/realGame')
 }
 </script>
