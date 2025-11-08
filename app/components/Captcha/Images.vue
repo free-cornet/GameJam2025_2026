@@ -99,15 +99,43 @@ const captchaPrompts = [
     {
         prompt: "The best operating system",
         images: [
-            { url: "/captcha/os/linux.png", label: "linux", isCorrect: true },
-            { url: "/captcha/os/linux2.jpg", label: "linux", isCorrect: true },
-            { url: "/captcha/os/linux3.png", label: "linux", isCorrect: true },
-            { url: "/captcha/os/macos.png", label: "macos", isCorrect: false },
-            { url: "/captcha/os/macos2.jpg", label: "macos", isCorrect: false },
-            { url: "/captcha/os/windows.png", label: "windows", isCorrect: false },
-            { url: "/captcha/os/windows2.jpg", label: "windows", isCorrect: false },
-            { url: "/captcha/os/freebsd.png", label: "freebsd", isCorrect: false },
-            { url: "/captcha/os/android.png", label: "android", isCorrect: false },
+            { url: "/captcha/os/linux.png", isCorrect: true },
+            { url: "/captcha/os/linux2.jpg", isCorrect: true },
+            { url: "/captcha/os/linux3.png", isCorrect: true },
+            { url: "/captcha/os/macos.png", isCorrect: false },
+            { url: "/captcha/os/macos2.jpg", isCorrect: false },
+            { url: "/captcha/os/windows.png", isCorrect: false },
+            { url: "/captcha/os/windows2.jpg", isCorrect: false },
+            { url: "/captcha/os/freebsd.png", isCorrect: false },
+            { url: "/captcha/os/android.png", isCorrect: false },
+        ],
+    },
+    {
+        prompt: "Ugly people",
+        images: [
+            { url: "/captcha/ugly/ugly1.jpg", isCorrect: true },
+            { url: "/captcha/ugly/ugly2.jpg", isCorrect: true },
+            { url: "/captcha/ugly/ugly3.jpg", isCorrect: true },
+            { url: "/captcha/ugly/ugly4.jpg", isCorrect: true },
+            { url: "/captcha/ugly/ugly5.jpg", isCorrect: true },
+            { url: "/captcha/ugly/ugly6.jpg", isCorrect: false },
+            { url: "/captcha/ugly/ugly7.png", isCorrect: true },
+            { url: "/captcha/ugly/ugly8.jpg", isCorrect: false },
+            { url: "/captcha/ugly/ugly9.jpg", isCorrect: true },
+        ],
+    },
+    {
+        prompt: "A bus",
+        images: [
+            { url: "/captcha/bus/bus1.jpg", isCorrect: true },
+            { url: "/captcha/bus/bus2.jpg", isCorrect: true },
+            { url: "/captcha/bus/bus3.jpg", isCorrect: true },
+            { url: "/captcha/bus/city1.jpg", isCorrect: false },
+            { url: "/captcha/bus/city2.jpg", isCorrect: false },
+            { url: "/captcha/bus/city3.jpg", isCorrect: false },
+            { url: "/captcha/bus/city4.jpg", isCorrect: false },
+            { url: "/captcha/bus/city5.jpg", isCorrect: false },
+            { url: "/captcha/bus/wheel.jpg", isCorrect: false },
         ],
     },
 ];
@@ -184,7 +212,7 @@ const handleHide = () => {
 };
 
 const openCaptcha = () => {
-    // Select a random captcha prompt
+    // Select a random captcha prompt from all available captchas
     currentCaptcha = captchaPrompts[Math.floor(Math.random() * captchaPrompts.length)];
     // Shuffle the images
     shuffledImages.value = shuffleArray(currentCaptcha.images);

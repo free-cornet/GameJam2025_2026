@@ -88,7 +88,7 @@ import CaptchaImages from "~/components/Captcha/Images.vue";
 
 const popupManager = usePopupManager();
 const captchaRefs = ref({});
-const INITIAL_CAPTCHA_COUNT = 3; // Number of CAPTCHAs to spawn initially
+const INITIAL_CAPTCHA_COUNT = 1; // Number of CAPTCHAs to spawn initially
 
 const showResetMessage = ref(false);
 
