@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <canvas ref="gameCanvas" width="600" height="400" style="border:1px solid #000;"></canvas>
+    <canvas ref="gameCanvas"></canvas>
   </div>
 </template>
 
@@ -9,56 +9,185 @@ export default {
   name: "StickmanGame",
   data() {
     return {
-      x: 50, // Starting X position
-      y: 300, // Y position (fixed)
-      targetX: 500, // Destination X
-      speed: 2, // Pixels per frame
-      animationFrame: null,
+      stickman: {
+        x: 100,
+        y: 0,
+        velocityY: 0,
+        isJumping: false,
+        speed: 3,
+        animationFrame: null,
+      },
+      ground: {
+        y: window.innerHeight * 0.75,
+      },
+      canvasWidth: window.innerWidth,
+      canvasHeight: window.innerHeight,
+      gravity: 0.5,
+      keys: {
+        left: false,
+        right: false,
+      },
+      stone: {
+        x: window.innerWidth / 2,
+        y: 0,
+        velocityY: 7,
+        radius: window.innerWidth / 2,
+      },
     };
   },
+
   mounted() {
-    this.drawStickman();
+    this.setCanvasSize();
+    this.ground.y = this.canvasHeight * 0.75;
+    this.stickman.y= this.ground.y - 20;
+
+    window.addEventListener("keydown", this.keyDown);
+    window.addEventListener("keyup", this.keyUp);
+    window.addEventListener("resize", this.handleResize);
+
     this.animate();
   },
+  beforeDestroy() {
+    window.removeEventListener("keydown", this.keyDown);
+    window.removeEventListener("keyup", this.keyUp);
+    window.removeEventListener("resize", handleResize);
+    cancelAnimationFrame(this.stickman.animationFrame);
+  },
+
   methods: {
-    drawStickman() {
+    setCanvasSize() {
+      const canvas = this.$refs.gameCanvas;
+      this.canvasWidth = window.innerWidth;
+      this.canvasHeight = window.innerHeight;
+      canvas.width = this.canvasWidth;
+      canvas.height = this.canvasHeight;
+    },
+    handleResize() {
+      this.setCanvasSize();
+      this.ground.y = this.canvasHeight * 0.75;
+      this.stickman.y = this.ground.y - 20;
+    },
+    keyDown(e) {
+      if (e.key === "ArrowRight") this.keys.right = true;
+      if (e.key === "ArrowLeft") this.keys.left = true;
+      if (e.key === " " && !this.stickman.isJumping) {
+        this.stickman.velocityY = -10;
+        this.stickman.isJumping = true;
+      }
+    },
+    keyUp(e) {
+      if (e.key === "ArrowRight") this.keys.right = false;
+      if (e.key === "ArrowLeft") this.keys.left = false;
+    },
+    animate() {
+      if (this.keys.right) this.stickman.x += this.stickman.speed;
+      if (this.keys.left) this.stickman.x -= this.stickman.speed;
+
+      // Horizontal boundaries
+      const margin = 10; // buffer for stickman width
+      if (this.stickman.x < margin) this.stickman.x = margin;
+      if (this.stickman.x > this.canvasWidth - margin) this.stickman.x = this.canvasWidth - margin;
+
+
+      this.stickman.velocityY += this.gravity;
+      this.stickman.y += this.stickman.velocityY;
+
+      // Ground collision
+      const groundLevel = this.ground.y - 20;
+      if (this.stickman.y > groundLevel) {
+        this.stickman.y = groundLevel;
+        this.stickman.velocityY = 0;
+        this.stickman.isJumping = false;
+      }
+
+      if (this.stone){
+        this.stoneTrap();
+      }
+
+      this.drawScene();
+      this.animationFrame = requestAnimationFrame(this.animate);
+    },
+
+    checkTrapEvent(){
+      return true;
+    },
+
+    stoneTrap(){
+      // Stone falling
+      this.stone.y += this.stone.velocityY;
+
+      // Collision with stickman
+      const dx = this.stickman.x - this.stone.x;
+      const dy = (this.stickman.y - 30) - this.stone.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      if (distance < this.stone.radius + 5) {
+        this.resetStone();
+      }
+
+      // Reset stone if it hits ground
+      if (this.stone.y > this.ground.y - this.stone.radius + 5) {
+        this.resetStone();
+      }
+    },
+
+    resetStone() {
+      this.stone = null;
+    },
+
+    drawScene() {
       const canvas = this.$refs.gameCanvas;
       const ctx = canvas.getContext("2d");
-
-      // Clear canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw ground
+      ctx.beginPath();
+      ctx.moveTo(0, this.ground.y);
+      ctx.lineTo(canvas.width, this.ground.y);
+      ctx.strokeStyle = "#444";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Stone
+      if (this.checkTrapEvent()){
+        if (this.stone){
+          ctx.beginPath();    
+          ctx.arc(this.stone.x, this.stone.y, this.stone.radius, 0, Math.PI * 2);
+          ctx.fillStyle = "#555";
+          ctx.fill();
+        }
+      }
 
       // Draw stickman
       ctx.beginPath();
-      ctx.arc(this.x, this.y - 30, 10, 0, Math.PI * 2); // Head
-      ctx.moveTo(this.x, this.y - 20); // Body
-      ctx.lineTo(this.x, this.y);
-      ctx.moveTo(this.x, this.y - 10); // Arms
-      ctx.lineTo(this.x - 10, this.y - 20);
-      ctx.moveTo(this.x, this.y - 10);
-      ctx.lineTo(this.x + 10, this.y - 20);
-      ctx.moveTo(this.x, this.y); // Legs
-      ctx.lineTo(this.x - 10, this.y + 20);
-      ctx.moveTo(this.x, this.y);
-      ctx.lineTo(this.x + 10, this.y + 20);
+      ctx.arc(this.stickman.x, this.stickman.y - 30, 10, 0, Math.PI * 2); // Head
+      ctx.moveTo(this.stickman.x, this.stickman.y - 20); // Body
+      ctx.lineTo(this.stickman.x, this.stickman.y);
+      ctx.moveTo(this.stickman.x, this.stickman.y - 10); // Arms
+      ctx.lineTo(this.stickman.x - 10, this.stickman.y - 20);
+      ctx.moveTo(this.stickman.x, this.stickman.y - 10);
+      ctx.lineTo(this.stickman.x + 10, this.stickman.y - 20);
+      ctx.moveTo(this.stickman.x, this.stickman.y); // Legs
+      ctx.lineTo(this.stickman.x - 10, this.stickman.y + 20);
+      ctx.moveTo(this.stickman.x, this.stickman.y);
+      ctx.lineTo(this.stickman.x + 10, this.stickman.y + 20);
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 1;
       ctx.stroke();
-    },
-    animate() {
-      if (this.x < this.targetX) {
-        this.x += this.speed;
-        this.drawStickman();
-        this.animationFrame = requestAnimationFrame(this.animate);
-      } else {
-        cancelAnimationFrame(this.animationFrame);
-      }
     },
   },
 };
 </script>
 
 <style>
+html,
+body,
 #app {
-  text-align: center;
-  margin-top: 50px;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+canvas {
+  display: block;
 }
 </style>
