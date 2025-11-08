@@ -332,13 +332,6 @@ export default {
           ctx.fill();
         }
       });
-
-      // Draw Stone
-      if (this.stone.active) {
-        ctx.beginPath();    
-        ctx.arc(this.stone.x, this.stone.y, this.stone.radius, 0, Math.PI * 2);
-        ctx.fillStyle = "#555";
-        ctx.fill();
       }
     },
   },
