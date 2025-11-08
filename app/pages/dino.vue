@@ -165,31 +165,14 @@ import { Score } from '~/class/Score';
         requestAnimationFrame(gameLoop);
     }
 
-    function story() {
-        ctx.fillStyle = "black"
-        ctx.fillRect( 50, 50, 500, 300) //pos x, pos y, width, height
-        ctx.fillStyle = "white"
-        ctx.fillRect( 55, 55, 490, 290)
-
-        const fontSize = 60
-        ctx.font = `${fontSize}px Verdana`;
-        ctx.fillStyle = "black";
-        const x = canvas.value.width / 7;
-        const y = canvas.value.height / 2;
-        ctx.fillText("Voici un test d'adresse,<br> faites de votre mieux !", x, y);
-    }
-
     function start() {
-        story()
 
-        /*setTimeout(() => {
-            setScreen();
+        setScreen();
 
-            requestAnimationFrame(gameLoop);
+        requestAnimationFrame(gameLoop);
 
-            window.addEventListener("keyup", reset, { once: true });
-            window.addEventListener("touchstart", reset, { once: true });
-        }, 20000);*/
+        window.addEventListener("keyup", reset, { once: true });
+        window.addEventListener("touchstart", reset, { once: true });
     }
 
 </script>
