@@ -27,10 +27,25 @@
         
         <button 
           @click="goBack" 
-          class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg transition-colors duration-300"
-        >
+          class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg transition-colors duration-300">
           Back to Loading
         </button>
+
+        <CaptchaImages
+          ref="captchaRef"
+          @verified="onCaptchaVerified"
+          @closed="onCaptchaClosed"
+        />
+        <br>
+
+        <button 
+          @click="reset" 
+          class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-lg transition-colors duration-300">
+          Reset game
+        </button>
+        <div v-if="showResetMessage" class="text-white mt-4">
+          Game reset
+        </div>
       </div>
 
       <!-- Dynamic CAPTCHA popups -->
@@ -74,6 +89,8 @@ import CaptchaImages from "~/components/Captcha/Images.vue";
 const popupManager = usePopupManager();
 const captchaRefs = ref({});
 const INITIAL_CAPTCHA_COUNT = 3; // Number of CAPTCHAs to spawn initially
+
+const showResetMessage = ref(false);
 
 const goBack = () => {
   navigateTo("/");
@@ -161,4 +178,8 @@ const onCaptchaSpawnNew = (popupId) => {
     openCaptcha(newPopupId);
   }, 50);
 };
+const reset = () => {
+  localStorage.setItem('trapCount', '0');
+  showResetMessage.value = true;
+}
 </script>
