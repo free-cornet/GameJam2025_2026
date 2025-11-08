@@ -24,7 +24,7 @@
               src="../assets/knight.png"
               alt="Knight"
               class="absolute top-1/2 -translate-y-1/2 right-0 translate-x-1/2 w-24 h-20 duration-500 ease-out"
-              :style="{ transform: `translateY(-50%) translateX(50%) rotate(${Math.sin(percentage * 3.6)*100}deg)` }"
+              :style="{ transform: `translateY(-50%) translateX(50%) rotate(${Math.sin(knight_rotation)*33}deg)` }"
             /></div>
           </div>
         </div>
@@ -71,17 +71,21 @@ const DOTS_APPEND_INTERVAL = 4; // ms - how often to add a dot
 // TODO use first one
 const INITIAL_LOADING_SPEED = { fast: 3, fastMedium: 1, medium: 2, mediumSlow: 0.5, slow: 1, slowMin: 0.2 };
 // const INITIAL_LOADING_SPEED = { fast: 30, fastMedium: 10, medium: 20, mediumSlow: 0.5, slow: 10, slowMin: 0.2 };
-const STAY_AT_99_DURATION = 30000; // ms - how long to stay at 99.999... before going backwards
+const STAY_AT_99_DURATION = 3000; // ms - how long to stay at 99.999... before going backwards
 const BACKWARD_DURATION = 4000; // ms - total time to go from 99% back to 69% and then to 100%
+const KNIGHT_ROTATION_INTERVAL = 200;
+
 
 const percentage = ref("0");
 const loadingMessage = ref("Initializing...");
 const dots = ref("");
+let knight_rotation = 0;
 let intervalId = null;
 let timeoutId = null;
 let nineAppendIntervalId = null;
 let dotsAppendIntervalId = null;
 let backwardIntervalId = null;
+let knightIntervalId = null;
 let dotCount = ref(0);
 
 const displayPercentage = computed(() => {
@@ -120,6 +124,13 @@ const updateLoadingMessage = (percent) => {
   } else {
     loadingMessage.value = loadingMessages[8];
   }
+};
+
+const startKnightMove = () => {
+  knightIntervalId = setInterval(() => {
+    knight_rotation += 1
+    }
+  , KNIGHT_ROTATION_INTERVAL)
 };
 
 const startLoading = () => {
@@ -208,6 +219,7 @@ const startBackwardLoading = () => {
 
 onMounted(() => {
   startLoading();
+  startKnightMove();
 });
 
 onUnmounted(() => {
@@ -216,6 +228,8 @@ onUnmounted(() => {
   if (nineAppendIntervalId) clearInterval(nineAppendIntervalId);
   if (dotsAppendIntervalId) clearInterval(dotsAppendIntervalId);
   if (backwardIntervalId) clearInterval(backwardIntervalId);
+  if (knightIntervalId) clearInterval(knightIntervalId)
+  
 });
 </script>
 
