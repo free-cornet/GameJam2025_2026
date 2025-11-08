@@ -332,7 +332,6 @@ export default {
           ctx.fill();
         }
       });
-      }
     },
   },
 };
