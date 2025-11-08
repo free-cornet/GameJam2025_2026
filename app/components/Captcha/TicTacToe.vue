@@ -42,25 +42,29 @@
                     </button>
                 </div>
 
-                <!-- Feedback Message -->
-                <div v-if="feedbackMessage" class="mb-4 p-3 rounded" :class="feedbackClass">
-                    {{ feedbackMessage }}
-                </div>
-
-                <!-- Buttons -->
+                <!-- Feedback and Buttons -->
                 <div class="flex gap-3 justify-end">
+                    <div v-if="feedbackMessage" class="w-full px-4 py-2 rounded" :class="feedbackClass">
+                        {{ feedbackMessage }}
+                    </div>
+
+                    <!-- Show Verify button only if game is over and we didn't lose -->
                     <button
-                        @click="resetGame"
-                        class="px-4 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 rounded transition-colors"
-                    >
-                        Reset
-                    </button>
-                    <button
+                        v-if="canVerify && gameOver"
                         @click="verifyCaptcha"
-                        :disabled="!canVerify || isVerifying"
-                        class="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white rounded transition-colors"
+                        :disabled="isVerifying"
+                        class="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white rounded transition-colors whitespace-nowrap"
                     >
                         {{ isVerifying ? "Verifying..." : "Verify" }}
+                    </button>
+
+                    <!-- Show Reset button otherwise -->
+                    <button
+                        v-else
+                        @click="resetGame"
+                        class="px-4 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 rounded transition-colors whitespace-nowrap"
+                    >
+                        Reset
                     </button>
                 </div>
             </div>
@@ -150,7 +154,7 @@ const playerMove = async (index) => {
     if (winner === "X") {
         gameOver.value = true;
         gameWon.value = true;
-        feedbackMessage.value = "✓ You won! Click verify to proceed.";
+        feedbackMessage.value = "You won!";
         feedbackClass.value = "bg-green-50 border border-green-200 text-green-700";
         return;
     }
@@ -159,7 +163,7 @@ const playerMove = async (index) => {
     if (isBoardFull()) {
         gameOver.value = true;
         gameWon.value = false;
-        feedbackMessage.value = "It's a draw! Click verify to proceed.";
+        feedbackMessage.value = "It's a draw!";
         feedbackClass.value = "bg-yellow-50 border border-yellow-200 text-yellow-700";
         return;
     }
@@ -185,7 +189,7 @@ const playerMove = async (index) => {
     if (isBoardFull()) {
         gameOver.value = true;
         gameWon.value = false;
-        feedbackMessage.value = "It's a draw! Click verify to proceed.";
+        feedbackMessage.value = "Nicely done!";
         feedbackClass.value = "bg-yellow-50 border border-yellow-200 text-yellow-700";
         return;
     }
