@@ -10,14 +10,14 @@
       </p>
 
       <!-- Active CAPTCHAs counter -->
-      <div v-if="popupManager.getActivePopupCount.value > 0" class="mb-4 text-yellow-300 font-semibold">
-        Solve {{ popupManager.getActivePopupCount.value }} CAPTCHA{{ popupManager.getActivePopupCount.value !== 1 ? 's' : '' }} to continue...
+      <div v-if="captchaManager.getActivePopupCount.value > 0" class="mb-4 text-yellow-300 font-semibold">
+        Solve {{ captchaManager.getActivePopupCount.value }} CAPTCHA{{ captchaManager.getActivePopupCount.value !== 1 ? 's' : '' }} to continue...
       </div>
       
       <div class="space-y-4">
         <button 
           @click="startGame"
-          :disabled="!popupManager.allPopupsSolved.value"
+          :disabled="!captchaManager.allPopupsSolved.value"
           class="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-500 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-300"
         >
           Start Game
@@ -31,11 +31,6 @@
           Back to Loading
         </button>
 
-        <CaptchaImages
-          ref="captchaRef"
-          @verified="onCaptchaVerified"
-          @closed="onCaptchaClosed"
-        />
         <br>
 
         <button 
@@ -49,67 +44,50 @@
       </div>
 
       <!-- Dynamic CAPTCHA popups -->
-      <template v-for="popup in popupManager.popups.value" :key="popup.id">
-        <CaptchaImages
-          v-if="popup.captchaType === 'Images'"
+      <ClientOnly>
+        <CaptchaWrapper
+          v-for="popup in captchaManager.popups.value"
+          :key="popup.id"
+          :captcha-type="popup.captchaType"
           :popup-id="popup.id"
-          :ref="(el) => registerRef(popup.id, el)"
+          :ref="(el) => captchaManager.registerRef(popup.id, el)"
           v-show="popup.isVisible"
           @verified="onCaptchaVerified"
           @spawnNew="onCaptchaSpawnNew"
           @closed="onCaptchaClosed"
           @hide="onCaptchaHide"
         />
-        <CaptchaTicTacToe
-          v-else-if="popup.captchaType === 'TicTacToe'"
-          :popup-id="popup.id"
-          :ref="(el) => registerRef(popup.id, el)"
-          v-show="popup.isVisible"
-          @verified="onCaptchaVerified"
-          @spawnNew="onCaptchaSpawnNew"
-          @closed="onCaptchaClosed"
-          @hide="onCaptchaHide"
-        />
-      </template>
-    </div>
+      </ClientOnly>
 
-    <!-- Hidden Popups List (Bottom Left) -->
-    <ClientOnly>
-      <div v-if="popupManager.getHiddenPopups.value.length > 0" class="fixed bottom-4 left-4 bg-gray-800 border-2 border-gray-600 rounded-lg p-4 z-40 shadow-2xl">
-        <h3 class="text-white font-bold mb-3 text-sm">Hidden CAPTCHAs</h3>
-        <div class="space-y-2">
-          <button
-            v-for="popup in popupManager.getHiddenPopups.value"
-            :key="`hidden-${popup.id}`"
-            @click="showPopup(popup.id)"
-            class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded text-sm transition-colors"
-          >
-            CAPTCHA #{{ popup.id + 1 }}
-          </button>
+      <!-- Hidden Popups List (Bottom Left) -->
+      <ClientOnly>
+        <div v-if="captchaManager.getHiddenPopups.value.length > 0" class="fixed bottom-4 left-4 bg-gray-800 border-2 border-gray-600 rounded-lg p-4 z-40 shadow-2xl">
+          <h3 class="text-white font-bold mb-3 text-sm">Hidden CAPTCHAs</h3>
+          <div class="space-y-2">
+            <button
+              v-for="popup in captchaManager.getHiddenPopups.value"
+              :key="`hidden-${popup.id}`"
+              @click="captchaManager.showCaptchaPopup(popup.id)"
+              class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded text-sm transition-colors"
+            >
+              CAPTCHA #{{ popup.id + 1 }}
+            </button>
+          </div>
         </div>
-      </div>
-    </ClientOnly>
+      </ClientOnly>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from "vue";
-import { usePopupManager } from "~/composables/usePopupManager";
-import CaptchaImages from "~/components/Captcha/Images.vue";
-import CaptchaTicTacToe from "~/components/Captcha/TicTacToe.vue";
+import { useCaptchaManager } from "~/composables/useCaptchaManager";
+import CaptchaWrapper from "~/components/CaptchaWrapper.vue";
 
-const popupManager = usePopupManager();
-const captchaRefs = ref({});
+const captchaManager = useCaptchaManager();
 const INITIAL_CAPTCHA_COUNT = 1; // Number of CAPTCHAs to spawn initially
 
 const showResetMessage = ref(false);
-
-// Array of captcha components to randomly select from
-const captchaTypes = ["Images", "TicTacToe"];
-
-const getRandomCaptchaType = () => {
-  return captchaTypes[Math.floor(Math.random() * captchaTypes.length)];
-};
 
 const goBack = () => {
   navigateTo("/");
@@ -119,53 +97,28 @@ const goToRealGame = () => {
   navigateTo("/realGame");
 };
 
-const registerRef = (popupId, el) => {
-  if (el) {
-    captchaRefs.value[popupId] = el;
-  } else {
-    delete captchaRefs.value[popupId];
-  }
-};
-
-const openCaptcha = (popupId) => {
-  const captcha = captchaRefs.value[popupId];
-  if (captcha) {
-    captcha.openCaptcha();
-  }
-};
-
-const showPopup = (popupId) => {
-  popupManager.showPopup(popupId);
-  // Also set isOpen to true in the Captcha component
-  const captcha = captchaRefs.value[popupId];
-  if (captcha) {
-    captcha.showCaptcha();
-  }
-};
-
 const startGame = () => {
-  // Add multiple CAPTCHAs
+  // Add multiple CAPTCHAs (will be randomly selected from registered types)
   const popupIds = [];
   for (let i = 0; i < INITIAL_CAPTCHA_COUNT; i++) {
-    const captchaType = getRandomCaptchaType();
-    popupManager.addPopup(captchaType);
-    popupIds.push(popupManager.popups.value[popupManager.popups.value.length - 1].id);
+    const popupId = captchaManager.addPopup(); // No type specified = random
+    popupIds.push(popupId);
   }
   
   // Open all CAPTCHAs after they're added to the DOM
   setTimeout(() => {
     popupIds.forEach((popupId) => {
-      openCaptcha(popupId);
+      captchaManager.openCaptcha(popupId);
     });
   }, 50);
 };
 
 const onCaptchaVerified = (popupId) => {
   console.log(`CAPTCHA ${popupId} verified!`);
-  popupManager.removePopup(popupId);
+  captchaManager.removePopup(popupId);
 
   // Check if all CAPTCHAs are solved
-  if (popupManager.allPopupsSolved.value) {
+  if (captchaManager.allPopupsSolved.value) {
     console.log("All CAPTCHAs solved! Proceeding to game...");
     setTimeout(() => {
       goToRealGame();
@@ -179,16 +132,15 @@ const onCaptchaClosed = (popupId) => {
 
 const onCaptchaHide = (popupId) => {
   console.log(`CAPTCHA ${popupId} hidden!`);
-  popupManager.hidePopup(popupId);
+  captchaManager.hidePopup(popupId);
 };
 
 const onCaptchaSpawnNew = (popupId) => {
   console.log(`CAPTCHA ${popupId} failed! Spawning additional puzzle...`);
   // Spawn a new CAPTCHA on failure while keeping the current one open for retry
-  const captchaType = getRandomCaptchaType();
-  const newPopupId = popupManager.addPopup(captchaType);
+  const newPopupId = captchaManager.addPopup(); // Random type
   setTimeout(() => {
-    openCaptcha(newPopupId);
+    captchaManager.openCaptcha(newPopupId);
   }, 50);
 };
 
