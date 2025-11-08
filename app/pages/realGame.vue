@@ -1,15 +1,26 @@
 <template>
   <div id="app">
     <canvas ref="gameCanvas"></canvas>
+    <div 
+      class="character" 
+      :class="{ walking: isWalking }"
+      :style="{ 
+        left: stickman.x + 'px', 
+        top: (stickman.y - 70) + 'px',
+        transform: currentDirection
+      }"
+    ></div>
   </div>
 </template>
 
 <script>
 export default {
-  name: "StickmanGame",
+  name: "SpriteGame",
   data() {
     return {
-      trapCount : 0,
+      trapCount: 0,
+      isWalking: false,
+      currentDirection: 'scaleX(1)', // Store current direction
       stickman: {
         x: 100,
         y: 0,
@@ -19,29 +30,48 @@ export default {
         animationFrame: null,
       },
       ground: {
-        y: window.innerHeight * 0.75,
+        y: 0,
       },
-      canvasWidth: window.innerWidth,
-      canvasHeight: window.innerHeight,
+      canvasWidth: 0,
+      canvasHeight: 0,
       gravity: 0.5,
       keys: {
         left: false,
         right: false,
       },
       stone: {
-        x: window.innerWidth / 2,
-        y: 0 - window.innerWidth / 2,
+        x: 0,
+        y: 0,
         velocityY: 9,
-        radius: window.innerWidth / 2,
+        radius: 0,
         active: false
       },
     };
   },
 
+  computed: {
+    initialGroundY() {
+      return window.innerHeight * 0.75;
+    },
+    initialStoneX() {
+      return window.innerWidth / 2;
+    },
+    initialStoneY() {
+      return 0 - window.innerWidth / 2;
+    },
+    initialStoneRadius() {
+      return window.innerWidth / 2;
+    }
+  },
+
   mounted() {
     this.setCanvasSize();
-    this.ground.y = this.canvasHeight * 0.75;
-    this.stickman.y= this.ground.y - 20;
+    this.ground.y = this.initialGroundY;
+    this.stickman.y = this.ground.y - 20;
+    this.stone.x = this.initialStoneX;
+    this.stone.y = this.initialStoneY;
+    this.stone.radius = this.initialStoneRadius;
+    this.trapCount = localStorage.getItem('trapCount') ? parseInt(localStorage.getItem('trapCount')) : 0;
 
     window.addEventListener("keydown", this.keyDown);
     window.addEventListener("keyup", this.keyUp);
@@ -49,10 +79,11 @@ export default {
 
     this.animate();
   },
+
   beforeDestroy() {
     window.removeEventListener("keydown", this.keyDown);
     window.removeEventListener("keyup", this.keyUp);
-    window.removeEventListener("resize", handleResize);
+    window.removeEventListener("resize", this.handleResize);
     cancelAnimationFrame(this.stickman.animationFrame);
   },
 
@@ -64,32 +95,49 @@ export default {
       canvas.width = this.canvasWidth;
       canvas.height = this.canvasHeight;
     },
+
     handleResize() {
       this.setCanvasSize();
       this.ground.y = this.canvasHeight * 0.75;
       this.stickman.y = this.ground.y - 20;
     },
+
     keyDown(e) {
-      if (e.key === "ArrowRight") this.keys.right = true;
-      if (e.key === "ArrowLeft") this.keys.left = true;
+      if (e.key === "ArrowRight") {
+        this.keys.right = true;
+        this.isWalking = true;
+        this.currentDirection = 'scaleX(1)';
+      }
+      if (e.key === "ArrowLeft") {
+        this.keys.left = true;
+        this.isWalking = true;
+        this.currentDirection = 'scaleX(-1)';
+      }
       if (e.key === " " && !this.stickman.isJumping) {
         this.stickman.velocityY = -10;
         this.stickman.isJumping = true;
       }
     },
+
     keyUp(e) {
-      if (e.key === "ArrowRight") this.keys.right = false;
-      if (e.key === "ArrowLeft") this.keys.left = false;
+      if (e.key === "ArrowRight") {
+        this.keys.right = false;
+        if (!this.keys.left) this.isWalking = false;
+      }
+      if (e.key === "ArrowLeft") {
+        this.keys.left = false;
+        if (!this.keys.right) this.isWalking = false;
+      }
     },
+
     animate() {
       if (this.keys.right) this.stickman.x += this.stickman.speed;
       if (this.keys.left) this.stickman.x -= this.stickman.speed;
 
       // Horizontal boundaries
-      const margin = 10; // buffer for stickman width
+      const margin = 64; // Half of sprite width
       if (this.stickman.x < margin) this.stickman.x = margin;
       if (this.stickman.x > this.canvasWidth - margin) this.stickman.x = this.canvasWidth - margin;
-
 
       this.stickman.velocityY += this.gravity;
       this.stickman.y += this.stickman.velocityY;
@@ -104,8 +152,7 @@ export default {
 
       this.checkTrapEvent();
 
-      if (this.stone.active){
-        console.log("here");
+      if (this.stone.active) {
         this.stoneTrap();
       }
 
@@ -120,16 +167,17 @@ export default {
       }
     },
 
-    stoneTrap(){
+    stoneTrap() {
       // Stone falling
       this.stone.y += this.stone.velocityY;
 
       // Collision with stickman
       const dx = this.stickman.x - this.stone.x;
-      const dy = (this.stickman.y - 30) - this.stone.y;
+      const dy = (this.stickman.y - 64) - this.stone.y; // Center of 128px sprite
       const distance = Math.sqrt(dx * dx + dy * dy);
-      if (this.stone && distance < this.stone.radius + 5) {
+      if (this.stone && distance < this.stone.radius + 64) {
         this.resetStone();
+        localStorage.setItem('trapCount', this.trapCount);
         navigateTo("./gameOver");
       }
 
@@ -157,35 +205,20 @@ export default {
       ctx.stroke();
 
       // Draw Stone
-      if (this.stone.active){
+      if (this.stone.active) {
         ctx.beginPath();    
         ctx.arc(this.stone.x, this.stone.y, this.stone.radius, 0, Math.PI * 2);
         ctx.fillStyle = "#555";
         ctx.fill();
       }
 
-      // Draw stickman
-      ctx.beginPath();
-      ctx.arc(this.stickman.x, this.stickman.y - 30, 10, 0, Math.PI * 2); // Head
-      ctx.moveTo(this.stickman.x, this.stickman.y - 20); // Body
-      ctx.lineTo(this.stickman.x, this.stickman.y);
-      ctx.moveTo(this.stickman.x, this.stickman.y - 10); // Arms
-      ctx.lineTo(this.stickman.x - 10, this.stickman.y - 20);
-      ctx.moveTo(this.stickman.x, this.stickman.y - 10);
-      ctx.lineTo(this.stickman.x + 10, this.stickman.y - 20);
-      ctx.moveTo(this.stickman.x, this.stickman.y); // Legs
-      ctx.lineTo(this.stickman.x - 10, this.stickman.y + 20);
-      ctx.moveTo(this.stickman.x, this.stickman.y);
-      ctx.lineTo(this.stickman.x + 10, this.stickman.y + 20);
-      ctx.strokeStyle = "#000";
-      ctx.lineWidth = 1;
-      ctx.stroke();
+      // Stickman is now rendered as a sprite div, not on canvas
     },
   },
 };
 </script>
 
-<style>
+<style scoped>
 html,
 body,
 #app {
@@ -194,7 +227,32 @@ body,
   height: 100%;
   overflow: hidden;
 }
+
+#app {
+  position: relative;
+}
+
 canvas {
   display: block;
+}
+
+.character {
+  position: absolute;
+  width: 96px;
+  height: 96px;
+  background-image: url('../assets/walking.png');
+  background-repeat: no-repeat;
+  background-size: 768px 96px;
+  pointer-events: none;
+  transition: transform 0.1s;
+}
+
+.character.walking {
+  animation: walk 0.6s steps(8) infinite;
+}
+
+@keyframes walk {
+  from { background-position: 0px 0px; }
+  to { background-position: -768px 0px; }
 }
 </style>
