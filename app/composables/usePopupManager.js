@@ -4,12 +4,13 @@ export const usePopupManager = () => {
   const popups = ref([]);
   let popupIdCounter = 0;
 
-  const addPopup = () => {
+  const addPopup = (captchaType = "Images") => {
     const id = popupIdCounter++;
     popups.value.push({
       id,
       isOpen: true,
       isVisible: true,
+      captchaType,
     });
     return id;
   };

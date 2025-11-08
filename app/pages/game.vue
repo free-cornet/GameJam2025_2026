@@ -49,17 +49,28 @@
       </div>
 
       <!-- Dynamic CAPTCHA popups -->
-      <CaptchaImages
-        v-for="popup in popupManager.popups.value"
-        :key="popup.id"
-        :popup-id="popup.id"
-        :ref="(el) => registerRef(popup.id, el)"
-        v-show="popup.isVisible"
-        @verified="onCaptchaVerified"
-        @spawnNew="onCaptchaSpawnNew"
-        @closed="onCaptchaClosed"
-        @hide="onCaptchaHide"
-      />
+      <template v-for="popup in popupManager.popups.value" :key="popup.id">
+        <CaptchaImages
+          v-if="popup.captchaType === 'Images'"
+          :popup-id="popup.id"
+          :ref="(el) => registerRef(popup.id, el)"
+          v-show="popup.isVisible"
+          @verified="onCaptchaVerified"
+          @spawnNew="onCaptchaSpawnNew"
+          @closed="onCaptchaClosed"
+          @hide="onCaptchaHide"
+        />
+        <CaptchaTicTacToe
+          v-else-if="popup.captchaType === 'TicTacToe'"
+          :popup-id="popup.id"
+          :ref="(el) => registerRef(popup.id, el)"
+          v-show="popup.isVisible"
+          @verified="onCaptchaVerified"
+          @spawnNew="onCaptchaSpawnNew"
+          @closed="onCaptchaClosed"
+          @hide="onCaptchaHide"
+        />
+      </template>
     </div>
 
     <!-- Hidden Popups List (Bottom Left) -->
@@ -85,12 +96,20 @@
 import { ref } from "vue";
 import { usePopupManager } from "~/composables/usePopupManager";
 import CaptchaImages from "~/components/Captcha/Images.vue";
+import CaptchaTicTacToe from "~/components/Captcha/TicTacToe.vue";
 
 const popupManager = usePopupManager();
 const captchaRefs = ref({});
 const INITIAL_CAPTCHA_COUNT = 1; // Number of CAPTCHAs to spawn initially
 
 const showResetMessage = ref(false);
+
+// Array of captcha components to randomly select from
+const captchaTypes = ["Images", "TicTacToe"];
+
+const getRandomCaptchaType = () => {
+  return captchaTypes[Math.floor(Math.random() * captchaTypes.length)];
+};
 
 const goBack = () => {
   navigateTo("/");
@@ -117,7 +136,7 @@ const openCaptcha = (popupId) => {
 
 const showPopup = (popupId) => {
   popupManager.showPopup(popupId);
-  // Also set isOpen to true in the CaptchaImages component
+  // Also set isOpen to true in the Captcha component
   const captcha = captchaRefs.value[popupId];
   if (captcha) {
     captcha.showCaptcha();
@@ -128,7 +147,9 @@ const startGame = () => {
   // Add multiple CAPTCHAs
   const popupIds = [];
   for (let i = 0; i < INITIAL_CAPTCHA_COUNT; i++) {
-    popupIds.push(popupManager.addPopup());
+    const captchaType = getRandomCaptchaType();
+    popupManager.addPopup(captchaType);
+    popupIds.push(popupManager.popups.value[popupManager.popups.value.length - 1].id);
   }
   
   // Open all CAPTCHAs after they're added to the DOM
@@ -152,15 +173,6 @@ const onCaptchaVerified = (popupId) => {
   }
 };
 
-const onCaptchaFailed = (popupId) => {
-  console.log(`CAPTCHA ${popupId} failed! Spawning new one...`);
-  // Spawn a new CAPTCHA on failure
-  const newPopupId = popupManager.addPopup();
-  setTimeout(() => {
-    openCaptcha(newPopupId);
-  }, 50);
-};
-
 const onCaptchaClosed = (popupId) => {
   console.log(`CAPTCHA ${popupId} closed`);
 };
@@ -173,13 +185,15 @@ const onCaptchaHide = (popupId) => {
 const onCaptchaSpawnNew = (popupId) => {
   console.log(`CAPTCHA ${popupId} failed! Spawning additional puzzle...`);
   // Spawn a new CAPTCHA on failure while keeping the current one open for retry
-  const newPopupId = popupManager.addPopup();
+  const captchaType = getRandomCaptchaType();
+  const newPopupId = popupManager.addPopup(captchaType);
   setTimeout(() => {
     openCaptcha(newPopupId);
   }, 50);
 };
+
 const reset = () => {
   localStorage.setItem('trapCount', '0');
   showResetMessage.value = true;
-}
+};
 </script>
