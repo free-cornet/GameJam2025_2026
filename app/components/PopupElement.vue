@@ -14,9 +14,9 @@
         >
           <h3 class="font-semibold text-sm">{{ title }}</h3>
           <button
-            @click="close"
+            @click="hide"
             class="text-white hover:bg-red-500 rounded px-2 py-1 transition-colors"
-            aria-label="Close popup"
+            aria-label="Hide popup"
           >
             ✕
           </button>
@@ -41,7 +41,7 @@ interface Props {
   y?: number;
   anchor?: "top-left" | "top-right" | "bottom-left" | "bottom-right" | "center";
   width?: number;
-  height?: number;
+  height?: string | number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -55,7 +55,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  close: [];
+  hide: [];
   "update:x": [number];
   "update:y": [number];
 }>();
@@ -89,8 +89,12 @@ const getAnchoredPosition = () => {
       y = viewportHeight - popupHeight - props.y;
       break;
     case "center":
-      x = (viewportWidth - popupWidth) / 2;
-      y = (viewportHeight - popupHeight) / 2;
+      // Center position with random offset
+      const offsetRange = 80; // pixels to offset from center
+      const randomOffsetX = (Math.random() - 0.5) * offsetRange;
+      const randomOffsetY = (Math.random() - 0.5) * offsetRange;
+      x = (viewportWidth - popupWidth) / 2 + randomOffsetX;
+      y = (viewportHeight - popupHeight) / 2 + randomOffsetY;
       break;
     case "top-left":
     default:
@@ -152,7 +156,11 @@ const handleMouseUp = () => {
 };
 
 const close = () => {
-  emit("close");
+  emit("hide");
+};
+
+const hide = () => {
+  emit("hide");
 };
 
 onMounted(() => {

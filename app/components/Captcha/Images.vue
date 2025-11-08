@@ -4,7 +4,7 @@
             title="Please solve this CAPTCHA"
             anchor="center"
             :is-open="isOpen"
-            @close="handleClose"
+            @hide="handleHide"
             :width="500"
         >
             <div class="min-w-sm">
@@ -78,7 +78,14 @@
 <script setup>
 import { ref, computed } from "vue";
 
-const emit = defineEmits(["verified", "closed"]);
+const emit = defineEmits(["verified", "closed", "failed", "hide", "spawnNew"]);
+
+const props = defineProps({
+  popupId: {
+    type: Number,
+    required: true,
+  },
+});
 
 const isOpen = ref(false);
 const selectedIndices = ref([]);
@@ -147,21 +154,33 @@ const verifyCaptcha = async () => {
         feedbackMessage.value = "✓ CAPTCHA solved! You may proceed.";
         feedbackClass.value = "bg-green-50 border border-green-200 text-green-700";
         setTimeout(() => {
-            emit("verified");
+            emit("verified", props.popupId);
             handleClose();
         }, 1500);
     } else {
-        feedbackMessage.value = "✗ Incorrect selection. Please try again.";
+        feedbackMessage.value = "✗ Incorrect selection. Spawning additional puzzle...";
         feedbackClass.value = "bg-red-50 border border-red-200 text-red-700";
         selectedIndices.value = [];
+        
+        // Shuffle new images for retry instead of closing
+        setTimeout(() => {
+            shuffledImages.value = shuffleArray(currentCaptcha.images);
+            emit("spawnNew", props.popupId);
+        }, 1500);
     }
 
     isVerifying.value = false;
 };
 
 const handleClose = () => {
-    emit("closed");
+    emit("closed", props.popupId);
     isOpen.value = false;
+};
+
+const handleHide = () => {
+    // Simply hide without emitting any other events
+    isOpen.value = false;
+    emit("hide", props.popupId);
 };
 
 const openCaptcha = () => {
@@ -174,8 +193,12 @@ const openCaptcha = () => {
     isOpen.value = true;
 };
 
+const showCaptcha = () => {
+    isOpen.value = true;
+};
+
 // Expose the openCaptcha method for external use
-defineExpose({ openCaptcha, isOpen });
+defineExpose({ openCaptcha, showCaptcha, isOpen });
 </script>
 
 <style scoped>
