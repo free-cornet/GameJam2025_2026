@@ -2,6 +2,15 @@
   <div id="app">
     <canvas ref="gameCanvas"></canvas>
     <div 
+      v-if="stone.active"
+      class="meteor"
+      :style="{ 
+        left: (stone.x - 1099/2) + 'px', 
+        top: (stone.y - 1095/2) + 'px',
+        transform: `scale(${(stone.radius * 2) / 1099})`
+      }"
+    ></div>
+    <div 
       class="character" 
       :class="{ walking: isWalking }"
       :style="{ 
@@ -60,7 +69,7 @@ export default {
       return 0 - window.innerWidth / 2;
     },
     initialStoneRadius() {
-      return window.innerWidth / 2;
+      return (window.innerWidth / 2) * 0.8;
     }
   },
 
@@ -163,7 +172,7 @@ export default {
     checkTrapEvent() {
       if (this.trapCount === 0 && this.stickman.x >= this.canvasWidth / 2) {
         this.stone.active = true;
-        this.trapCount += 1;
+        // this.trapCount += 1;
       }
     },
 
@@ -172,10 +181,14 @@ export default {
       this.stone.y += this.stone.velocityY;
 
       // Collision with stickman
-      const dx = this.stickman.x - this.stone.x;
-      const dy = (this.stickman.y - 64) - this.stone.y; // Center of 128px sprite
+      var stickman_center_x = this.stickman.x + 48;
+      var stickman_center_y = this.stickman.y + 48 - 35;
+
+      
+      const dx = stickman_center_x - this.stone.x;
+      const dy = stickman_center_y - this.stone.y; // Center of 128px sprite
       const distance = Math.sqrt(dx * dx + dy * dy);
-      if (this.stone && distance < this.stone.radius + 64) {
+      if (this.stone && distance < this.stone.radius) {
         this.resetStone();
         localStorage.setItem('trapCount', this.trapCount);
         navigateTo("./gameOver");
@@ -203,16 +216,6 @@ export default {
       ctx.strokeStyle = "#444";
       ctx.lineWidth = 2;
       ctx.stroke();
-
-      // Draw Stone
-      if (this.stone.active) {
-        ctx.beginPath();    
-        ctx.arc(this.stone.x, this.stone.y, this.stone.radius, 0, Math.PI * 2);
-        ctx.fillStyle = "#555";
-        ctx.fill();
-      }
-
-      // Stickman is now rendered as a sprite div, not on canvas
     },
   },
 };
@@ -236,6 +239,16 @@ canvas {
   display: block;
 }
 
+.meteor {
+  position: absolute;
+  width: 1099px;
+  height: 1095px;
+  background-image: url('../assets/meteor.png');
+  background-repeat: no-repeat;
+  background-size: 1099px 1095px;
+  transition: transform 0.1s;
+}
+
 .character {
   position: absolute;
   width: 96px;
@@ -255,4 +268,5 @@ canvas {
   from { background-position: 0px 0px; }
   to { background-position: -768px 0px; }
 }
+
 </style>
