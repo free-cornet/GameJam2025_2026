@@ -27,12 +27,12 @@ export default {
   name: "SpriteGame",
   data() {
     return {
-      trapCount: 0,
+      trapCount: 1, // TODO
       isWalking: false,
       currentDirection: 'scaleX(1)', // Store current direction
       stickman: {
         x: 100,
-        y: 0,
+        y: -100,
         velocityY: 0,
         isJumping: false,
         speed: 3,
@@ -40,6 +40,8 @@ export default {
       },
       ground: {
         y: 0,
+        groundColors: ['#A0522D', '#8B4513', '#CD853F', '#D2B48C', '#BC8F8F'],
+        selectedGroundColor: '',
       },
       canvasWidth: 0,
       canvasHeight: 0,
@@ -51,10 +53,29 @@ export default {
       stone: {
         x: 0,
         y: 0,
-        velocityY: 9,
+        velocityY: 10,
         radius: 0,
         active: false
       },
+      spikes: [
+        {
+          x: 0,
+          y: 0,
+          width: 60,
+          height: 0,
+          maxHeight: 40,
+          active: false,
+        },
+        {
+          x: 0,
+          y: 0,
+          width: 60,
+          height: 0,
+          maxHeight: 40,
+          active: false,
+        },
+      ],
+
     };
   },
 
@@ -70,17 +91,30 @@ export default {
     },
     initialStoneRadius() {
       return (window.innerWidth / 2) * 0.8;
+    },
+    initialSpikeY(){
+      return window.innerHeight * 0.75;
     }
   },
 
   mounted() {
     this.setCanvasSize();
     this.ground.y = this.initialGroundY;
+    this.ground.selectedGroundColor = this.ground.groundColors[Math.floor(Math.random() * this.ground.groundColors.length)];
+
     this.stickman.y = this.ground.y - 20;
+
     this.stone.x = this.initialStoneX;
     this.stone.y = this.initialStoneY;
     this.stone.radius = this.initialStoneRadius;
+
     this.trapCount = localStorage.getItem('trapCount') ? parseInt(localStorage.getItem('trapCount')) : 0;
+
+    this.spikes[0].x = this.canvasWidth / 2 + 150;
+    this.spikes[0].y = this.initialSpikeY;
+
+    this.spikes[1].x = this.spikes[0].x + this.spikes[1].width;
+    this.spikes[1].y = this.initialSpikeY;
 
     window.addEventListener("keydown", this.keyDown);
     window.addEventListener("keyup", this.keyUp);
@@ -109,6 +143,9 @@ export default {
       this.setCanvasSize();
       this.ground.y = this.canvasHeight * 0.75;
       this.stickman.y = this.ground.y - 20;
+      this.spikes.forEach(spike => {
+        spike.y = this.canvasHeight * 0.75;
+      });
     },
 
     keyDown(e) {
@@ -163,6 +200,15 @@ export default {
 
       if (this.stone.active) {
         this.stoneTrap();
+      } 
+
+      if (this.spikes[0].active){
+        this.spikes.forEach(spike => {
+          if (spike.active && spike.height < spike.maxHeight){
+            spike.height += 5;
+          }
+        });
+        this.checkSpikeCollision();
       }
 
       this.drawScene();
@@ -170,9 +216,21 @@ export default {
     },
     
     checkTrapEvent() {
-      if (this.trapCount === 0 && this.stickman.x >= this.canvasWidth / 2) {
-        this.stone.active = true;
-        // this.trapCount += 1;
+      if (this.trapCount === 0 ) {
+        if (this.stickman.x >= (this.canvasWidth / 2 - 175)){
+          this.stone.active = true;
+          this.trapCount += 1; 
+        } 
+      } 
+      
+      if (this.trapCount === 1) {
+        if (this.stickman.x >= (this.canvasWidth / 2 - 150)){
+          this.spikes[0].active = true;
+        } 
+        if (!(this.spikes[1].active) && this.spikes[0].active && this.stickman.x + 48 >= this.spikes[0].x){
+          this.spikes[1].active = true;
+          this.trapCount += 0; // TODO
+        }
       }
     },
 
@@ -204,10 +262,54 @@ export default {
       this.stone.active = false;
     },
 
+    calculateSpikeY(spike, negative, x){
+      var slope = spike.height / (spike.width / 2);
+      var height = - (slope * x);
+      if (negative) {
+        return (- slope) * x + height;
+      }
+      return slope * x + height;
+    },
+
+    checkSpikeCollision(){
+      this.spikes.forEach(spike => {
+        if (spike.active && spike.height >= spike.maxHeight) {
+          const spikeTopY = spike.y - spike.height;
+          const spikeLeftX = spike.x - spike.width / 2;
+          const spikeRightX = spike.x + spike.width / 2;
+
+          const stickmanBottomY = this.stickman.y;
+          const stickmanLeftX = this.stickman.x - 48;
+          const stickmanRightX = this.stickman.x + 72;
+
+          const horizontalOverlap = stickmanRightX >= spikeLeftX && stickmanLeftX <= spikeRightX;
+          const verticalOverlap = stickmanBottomY >= spikeTopY;
+          
+          if (horizontalOverlap && verticalOverlap) {
+            if (stickmanRightX > spike.x + spike.width / 2) {
+              if (stickmanBottomY > this.calculateSpikeY(spike, true, stickmanRightX)){
+                localStorage.setItem('trapCount', this.trapCount);
+                navigateTo('./gameOver');
+              }
+            } else {
+              if (stickmanBottomY > this.calculateSpikeY(spike, false, stickmanRightX)){
+                localStorage.setItem('trapCount', this.trapCount);
+                navigateTo('./gameOver');
+              }
+            }
+          }
+        }
+      });
+    },
+
     drawScene() {
       const canvas = this.$refs.gameCanvas;
       const ctx = canvas.getContext("2d");
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw ground area below the line
+      ctx.fillStyle = this.ground.selectedGroundColor;
+      ctx.fillRect(0, this.ground.y, canvas.width, canvas.height - this.ground.y);
 
       // Draw ground
       ctx.beginPath();
@@ -216,6 +318,28 @@ export default {
       ctx.strokeStyle = "#444";
       ctx.lineWidth = 2;
       ctx.stroke();
+
+      // Draw spikes
+      this.spikes.forEach(spike => {
+        if (spike.active) {
+          ctx.fillStyle = this.ground.selectedGroundColor; 
+          ctx.beginPath();
+          ctx.moveTo(spike.x, spike.y);
+          ctx.lineTo(spike.x - spike.width / 2, spike.y);
+          ctx.lineTo(spike.x, spike.y - spike.height);
+          ctx.lineTo(spike.x + spike.width / 2, spike.y);
+          ctx.closePath();
+          ctx.fill();
+        }
+      });
+
+      // Draw Stone
+      if (this.stone.active) {
+        ctx.beginPath();    
+        ctx.arc(this.stone.x, this.stone.y, this.stone.radius, 0, Math.PI * 2);
+        ctx.fillStyle = "#555";
+        ctx.fill();
+      }
     },
   },
 };
