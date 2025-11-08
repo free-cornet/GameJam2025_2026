@@ -27,7 +27,7 @@ export default {
   name: "SpriteGame",
   data() {
     return {
-      trapCount: 1, // TODO
+      trapCount: 0,
       isWalking: false,
       currentDirection: 'scaleX(1)', // Store current direction
       stickman: {
@@ -216,10 +216,9 @@ export default {
     },
     
     checkTrapEvent() {
-      if (this.trapCount === 0 ) {
+      if (this.trapCount === 0) {
         if (this.stickman.x >= (this.canvasWidth / 2 - 175)){
           this.stone.active = true;
-          this.trapCount += 1; 
         } 
       } 
       
@@ -229,7 +228,6 @@ export default {
         } 
         if (!(this.spikes[1].active) && this.spikes[0].active && this.stickman.x + 48 >= this.spikes[0].x){
           this.spikes[1].active = true;
-          this.trapCount += 0; // TODO
         }
       }
     },
@@ -241,15 +239,13 @@ export default {
       // Collision with stickman
       var stickman_center_x = this.stickman.x + 48;
       var stickman_center_y = this.stickman.y + 48 - 35;
-
       
       const dx = stickman_center_x - this.stone.x;
-      const dy = stickman_center_y - this.stone.y; // Center of 128px sprite
+      const dy = stickman_center_y - this.stone.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
       if (this.stone && distance < this.stone.radius) {
         this.resetStone();
-        localStorage.setItem('trapCount', this.trapCount);
-        navigateTo("./gameOver");
+        this.gameOver();
       }
 
       // Reset stone if it hits ground
@@ -260,6 +256,12 @@ export default {
 
     resetStone() {
       this.stone.active = false;
+    },
+
+    gameOver(){
+      this.trapCount += 1;
+      localStorage.setItem('trapCount', this.trapCount);
+      navigateTo("./gameOver");
     },
 
     calculateSpikeY(spike, negative, x){
@@ -287,14 +289,12 @@ export default {
           
           if (horizontalOverlap && verticalOverlap) {
             if (stickmanRightX > spike.x + spike.width / 2) {
-              if (stickmanBottomY > this.calculateSpikeY(spike, true, stickmanRightX)){
-                localStorage.setItem('trapCount', this.trapCount);
-                navigateTo('./gameOver');
+              if (stickmanBottomY > this.calculateSpikeY(spike, true, stickmanRightX)){ 
+                this.gameOver();
               }
             } else {
               if (stickmanBottomY > this.calculateSpikeY(spike, false, stickmanRightX)){
-                localStorage.setItem('trapCount', this.trapCount);
-                navigateTo('./gameOver');
+                this.gameOver();
               }
             }
           }
