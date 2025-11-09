@@ -78,10 +78,8 @@ import { ref, onMounted, onUnmounted, computed } from "vue";
 const LOADING_UPDATE_INTERVAL = 100; // ms - how often the main loading updates
 const NINE_APPEND_INTERVAL = 300; // ms - how often to add a new 9 and dot
 const DOTS_APPEND_INTERVAL = 4; // ms - how often to add a dot
-// TODO use first one
 const INITIAL_LOADING_SPEED = { fast: 3, fastMedium: 1, medium: 2, mediumSlow: 0.5, slow: 1, slowMin: 0.2 };
-// const INITIAL_LOADING_SPEED = { fast: 30, fastMedium: 10, medium: 20, mediumSlow: 0.5, slow: 10, slowMin: 0.2 };
-const STAY_AT_99_DURATION = 3000; // ms - how long to stay at 99.999... before going backwards
+const STAY_AT_99_DURATION = 10000; // ms - how long to stay at 99.999... before going backwards
 const BACKWARD_DURATION = 4000; // ms - total time to go from 99% back to 69% and then to 100%
 const KNIGHT_ROTATION_INTERVAL = 200;
 
