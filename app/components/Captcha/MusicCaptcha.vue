@@ -1,309 +1,225 @@
 <template>
-  <ClientOnly>
-    <PopupElement
+    <ClientOnly>
+        <PopupElement
             title="Orchestra"
             anchor="center"
             :is-open="isOpen"
             @hide="handleHide"
-            :width="400"
+            :width="500"
         >
-        <!-- Instructions -->
-        <div class="mb-4 p-3 bg-blue-50 rounded border border-blue-200">
-                <span class="text-lg font-bold text-blue-600">Select all the musicians needed to make the beautiful music you are hearing.</span>
-        </div>
-        <div class="flex items-center justify-center">
-            <div class="grid grid-cols-3 place-items-center border-2">
-                <div class="flex flex-col items-center gap-2">
-                  <button @click="bass_pressed"
-                    class="bass cursor-pointer scale-[0.3]"
-                    :class="{ dancing: isDancing }"
-                  >
-                  </button>
-                  <span class="text-black">{{bass_bool ? "Present" : "Absent"}}</span>
-                </div>
-
-                <div class="flex flex-col items-center gap-2">
-                  <button @click="cor_pressed"
-                          class="cor cursor-pointer scale-[0.3]"
-                          :class="{ dancing: isDancing }"
-                          >
-                  </button>
-                  <span class="text-black">{{cor_bool ? "Present" : "Absent"}}</span>
-                </div>
-                
-                <div class="flex flex-col items-center gap-2">
-                  <button @click="drum_pressed"
-                          class="drum cursor-pointer scale-[0.3]"
-                          :class="{ dancing: isDancing }"
-                          >
-                  </button>
-                  <span class="text-black">{{drum_bool ? "Present" : "Absent"}}</span>
-                </div>
-
-                <div class="flex flex-col items-center gap-2">
-                  <button @click="trumpet_pressed"
-                          class="trumpet cursor-pointer scale-[0.3]"
-                          :class="{ dancing: isDancing }"
-                          >
-                  </button>
-                  <span class="text-black">{{trumpet_bool ? "Present" : "Absent"}}</span>
-                </div>
-
-                <div class="flex flex-col items-center gap-2">
-                  <button @click="wind_pressed"
-                          class="wind cursor-pointer scale-[0.3]"
-                          :class="{ dancing: isDancing }"
-                          >
-                  </button>
-                  <span class="text-black">{{wind_bool ? "Present" : "Absent"}}</span>
-                </div>
-
-                <div class="flex flex-col items-center gap-2">
-                  <button @click="xylo_pressed"
-                          class="xylo cursor-pointer scale-[0.3]"
-                          :class="{ dancing: isDancing }"
-                          >
-                  </button>
-                  <span class="text-black">{{xylo_bool ? "Present" : "Absent"}}</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="flex gap-3 justify-end">
-            <!-- Feedback Message -->
-            <div v-if="feedbackMessage" class="w-full px-4 py-2 rounded" :class="feedbackClass">
-                {{ feedbackMessage }}
+            <!-- Instructions -->
+            <div class="mb-4 p-3 bg-blue-50 rounded border border-blue-200">
+                <p class="text-sm text-gray-700">
+                    <span class="font-semibold">Select all the musicians needed to make the beautiful music you are hearing.</span>
+                </p>
             </div>
 
-            <button
-                @click="verifyCaptcha"
-                :disabled="isVerifying"
-                class="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white rounded transition-colors"
-            >
-                {{ isVerifying ? "Verifying..." : "Verify" }}
-            </button>
-        </div>
-        
-        <audio loop autoplay style="display: none;">
-            <source src="/captcha/music/bass_2.mp3" type="audio/mpeg">
-        </audio>
-        <audio loop autoplay style="display: none;">
-            <source src="/captcha/music/drum_2.mp3" type="audio/mpeg">
-        </audio>
-        <audio loop autoplay style="display: none;">
-            <source src="/captcha/music/flute_2.mp3" type="audio/mpeg">
-        </audio>
-      </PopupElement>
+            <!-- Instruments Grid (3x2) -->
+            <div class="grid grid-cols-3 gap-3 mb-4 place-items-center">
+                <div
+                    v-for="instrument in instruments"
+                    :key="instrument.id"
+                    @click="toggleInstrument(instrument.id)"
+                    class="relative cursor-pointer transform transition-transform hover:scale-105"
+                >
+                    <!-- Square container for instrument -->
+                    <div
+                        :class="[
+                            'size-32 overflow-hidden rounded-lg transition-all',
+                            isSelected(instrument.id) ? 'border-4 border-green-500 brightness-75' : 'border-4 border-gray-300 hover:border-gray-400'
+                        ]"
+                    >
+                        <button
+                            :class="[instrument.cssClass, 'w-full h-full cursor-pointer']"
+                        />
+                    </div>
+                    
+                    <!-- Checkmark overlay for selected instruments -->
+                    <div
+                        v-if="isSelected(instrument.id)"
+                        class="absolute inset-0 grid place-items-center select-none pointer-events-none"
+                    >
+                        <div class="bg-green-500 text-white rounded-full size-12 grid place-items-center border-2 border-white text-2xl font-bold shadow-lg">
+                            ✓
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-3 justify-end">
+                <!-- Feedback Message -->
+                <div v-if="feedbackMessage" class="w-full px-4 py-2 rounded" :class="feedbackClass">
+                    {{ feedbackMessage }}
+                </div>
+
+                <button
+                    @click="verifyCaptcha"
+                    :disabled="isVerifying"
+                    class="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white rounded transition-colors"
+                >
+                    {{ isVerifying ? "Verifying..." : "Verify" }}
+                </button>
+            </div>
+
+            <audio loop autoplay style="display: none;">
+                <source src="/captcha/music/bass_2.mp3" type="audio/mpeg">
+            </audio>
+            <audio loop autoplay style="display: none;">
+                <source src="/captcha/music/drum_2.mp3" type="audio/mpeg">
+            </audio>
+            <audio loop autoplay style="display: none;">
+                <source src="/captcha/music/flute_2.mp3" type="audio/mpeg">
+            </audio>
+        </PopupElement>
     </ClientOnly>
 </template>
 
 <script setup>
-    import { ref, onMounted } from "vue";
+import { ref } from "vue";
 
-    const emit = defineEmits(["verified", "closed", "hide", "spawnNew"]);
+const emit = defineEmits(["verified", "closed", "hide", "spawnNew"]);
 
-    const props = defineProps({
-        popupId: {
-            type: Number,
-            required: true,
-        },
-    });
+const props = defineProps({
+    popupId: {
+        type: Number,
+        required: true,
+    },
+});
 
-    const isOpen = ref(false);
+// Instruments configuration
+const instruments = ref([
+    { id: "bass", cssClass: "bass" },
+    { id: "cor", cssClass: "cor" },
+    { id: "drum", cssClass: "drum" },
+    { id: "trumpet", cssClass: "trumpet" },
+    { id: "wind", cssClass: "wind" },
+    { id: "xylo", cssClass: "xylo" },
+]);
 
-    const isVerifying = ref(false);
-    const feedbackClass = ref("");
-    const feedbackMessage = ref("");
-    const isDancing = true;
-    const bass_bool = ref(false);
-    const cor_bool = ref(false);
-    const drum_bool = ref(false);
-    const trumpet_bool = ref(false);
-    const wind_bool = ref(false);
-    const xylo_bool = ref(false);
+// Selected instruments
+const selectedInstruments = ref([]);
 
-    onMounted(() => {
-        start()
-    })
+// UI state
+const isOpen = ref(false);
+const isVerifying = ref(false);
+const feedbackClass = ref("");
+const feedbackMessage = ref("");
 
-    function start() {
-        /*var audio = new Audio("/captcha/music/bass_2.mp3");
-        
-        audio.play();*/
-        
+// Correct answer
+const correctInstruments = ["bass", "drum", "wind"];
+
+const isSelected = (instrumentId) => {
+    return selectedInstruments.value.includes(instrumentId);
+};
+
+const toggleInstrument = (instrumentId) => {
+    const index = selectedInstruments.value.indexOf(instrumentId);
+    if (index > -1) {
+        selectedInstruments.value.splice(index, 1);
+    } else {
+        selectedInstruments.value.push(instrumentId);
     }
+    feedbackMessage.value = "";
+};
 
-    function bass_pressed() {
-        bass_bool.value = !bass_bool.value
+const resetSelections = () => {
+    selectedInstruments.value = [];
+    feedbackMessage.value = "";
+};
+
+const handleClose = () => {
+    emit("closed", props.popupId);
+    isOpen.value = false;
+};
+
+const handleHide = () => {
+    isOpen.value = false;
+    emit("hide", props.popupId);
+};
+
+const openCaptcha = () => {
+    resetSelections();
+    isOpen.value = true;
+};
+
+const showCaptcha = () => {
+    isOpen.value = true;
+};
+
+const verifyCaptcha = async () => {
+    isVerifying.value = true;
+
+    // Simulate verification delay
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    const selected = selectedInstruments.value.sort().join(",");
+    const correct = correctInstruments.sort().join(",");
+
+    if (selected === correct) {
+        feedbackMessage.value = "Correct!";
+        feedbackClass.value = "bg-green-50 border border-green-200 text-green-700";
+        setTimeout(() => {
+            emit("verified", props.popupId);
+            handleClose();
+        }, 1500);
+    } else {
+        feedbackMessage.value = "One of the musicians is quite discreet, try again.";
+        feedbackClass.value = "bg-red-50 border border-red-200 text-red-700";
+        resetSelections();
     }
-
-    function cor_pressed() {
-        cor_bool.value = !cor_bool.value
-    }
-
-    function drum_pressed() {
-        drum_bool.value = !drum_bool.value
-    }
-
-    function trumpet_pressed() {
-        trumpet_bool.value = !trumpet_bool.value
-    }
-
-    function wind_pressed() {
-        wind_bool.value = !wind_bool.value
-    }
-
-    function xylo_pressed() {
-        xylo_bool.value = !xylo_bool.value
-    }
-
-    const handleClose = () => {
-      emit("closed", props.popupId);
-      isOpen.value = false;
-    };
-
-    const handleHide = () => {
-        isOpen.value = false;
-        emit("hide", props.popupId);
-    };
-
-    const openCaptcha = () => {
-        // Reset/initialize your captcha
-        isOpen.value = true;
-    };
-
-    const showCaptcha = () => {
-        isOpen.value = true;
-    };
-
-    const verifyCaptcha = async () => {
-      isVerifying.value = true;
-
-      // Simulate verification delay
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      if (bass_bool.value && drum_bool.value && wind_bool.value
-        && !trumpet_bool.value && !xylo_bool.value && !cor_bool.value
-      ) {
-          feedbackMessage.value = "Correct!";
-          feedbackClass.value = "bg-green-50 border border-green-200 text-green-700";
-          setTimeout(() => {
-              emit("verified", props.popupId);
-              handleClose();
-          }, 1500);
-      } else {
-          feedbackMessage.value = "One of the musician is quite discreet, try again.";
-          feedbackClass.value = "bg-red-50 border border-red-200 text-red-700";
-          bass_bool.value = false
-          drum_bool.value = false
-          wind_bool.value = false
-          trumpet_bool.value = false
-          xylo_bool.value = false
-          cor_bool.value = false
-          
-           await new Promise((resolve) => setTimeout(resolve, 500));
-      }
 
     isVerifying.value = false;
-  };
+};
 
-    // REQUIRED: Expose these methods
-    defineExpose({ openCaptcha, showCaptcha, isOpen });
+// Expose methods
+defineExpose({ openCaptcha, showCaptcha, isOpen });
 </script>
 
 <style scoped>
+.bass,
+.cor,
+.drum,
+.trumpet,
+.wind,
+.xylo {
+    width: 100%;
+    height: 100%;
+    background-repeat: no-repeat;
+    background-size: 400% 100%;
+    background-position: 0% 0%;
+    animation: dance 1s steps(3) infinite;
+}
+
 .bass {
-  position: flex;
-  width: 256px;
-  height: 256px;
-  background-image: url('/captcha/music/bass.png');
-  background-repeat: no-repeat;
-  background-size: 1024px 256px;
-  pointer-events: auto;
-  transition: transform 0.1s;
-}
-
-.bass.dancing {
-  animation: dance 0.6s steps(4) infinite;
-}
-
-@keyframes dance {
-  from { background-position: 0px 0px; }
-  to { background-position: -1024px 0px; }
+    background-image: url('/captcha/music/bass.png');
 }
 
 .cor {
-  position: flex;
-  width: 256px;
-  height: 256px;
-  background-image: url('/captcha/music/cor.png');
-  background-repeat: no-repeat;
-  background-size: 1024px 256px;
-  pointer-events: auto;
-  transition: transform 0.1s;
-}
-
-.cor.dancing {
-  animation: dance 0.6s steps(4) infinite;
+    background-image: url('/captcha/music/cor.png');
 }
 
 .drum {
-  position: flex;
-  width: 256px;
-  height: 256px;
-  background-image: url('/captcha/music/drum.png');
-  background-repeat: no-repeat;
-  background-size: 1024px 256px;
-  pointer-events: auto;
-  transition: transform 0.1s;
-}
-
-.drum.dancing {
-  animation: dance 0.6s steps(4) infinite;
+    background-image: url('/captcha/music/drum.png');
 }
 
 .trumpet {
-  position: flex;
-  width: 256px;
-  height: 256px;
-  background-image: url('/captcha/music/trumpet.png');
-  background-repeat: no-repeat;
-  background-size: 1024px 256px;
-  pointer-events: auto;
-  transition: transform 0.1s;
-}
-
-.trumpet.dancing {
-  animation: dance 0.6s steps(4) infinite;
+    background-image: url('/captcha/music/trumpet.png');
 }
 
 .wind {
-  position: flex;
-  width: 256px;
-  height: 256px;
-  background-image: url('/captcha/music/wind.png');
-  background-repeat: no-repeat;
-  background-size: 1024px 256px;
-  pointer-events: auto;
-  transition: transform 0.1s;
-}
-
-.wind.dancing {
-  animation: dance 0.6s steps(4) infinite;
+    background-image: url('/captcha/music/wind.png');
 }
 
 .xylo {
-  position: flex;
-  width: 256px;
-  height: 256px;
-  background-image: url('/captcha/music/xylo.png');
-  background-repeat: no-repeat;
-  background-size: 1024px 256px;
-  pointer-events: auto;
-  transition: transform 0.1s;
+    background-image: url('/captcha/music/xylo.png');
 }
 
-.xylo.dancing {
-  animation: dance 0.6s steps(4) infinite;
+@keyframes dance {
+    0% {
+        background-position: 0% 0%;
+    }
+    100% {
+        background-position: 100% 0%;
+    }
 }
 </style>
