@@ -1,21 +1,30 @@
 <template>
-    <div id="app" style="display: flex; align-items: center; justify-content: center; height: 100vh;">
-        <canvas ref="gameCanvas" width="600" height="400" style="border:2px solid grey;"></canvas>
+    <ClientOnly>
+    <PopupElement
+        title="The Dino Game"
+        anchor="center"
+        :is-open="isOpen"
+        @hide="handleHide"
+        :width="600">
+        <div id="app" style="display: flex; align-items: center; justify-content: center; height: 100vh;">
+            <canvas ref="gameCanvas" width="600" height="400" style="border:2px solid grey;"></canvas>
 
-        <button @click="start(); showText = !showText" v-show="showText"
-            class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
-        >
-            <div 
-            class="bg-gray-800 rounded-2xl shadow-2xl p-8 max-w-2xl w-full mx-4 border-2 border-gray-700"
+            <button @click="start(); showText = !showText" v-show="showText"
+                class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
             >
-                <div class="text-center mb-8">
-                    <h2 class="text-4xl font-bold text-white mb-2">
-                        <p>{{ message }}</p>
-                    </h2>
+                <div 
+                class="bg-gray-800 rounded-2xl shadow-2xl p-8 max-w-2xl w-full mx-4 border-2 border-gray-700"
+                >
+                    <div class="text-center mb-8">
+                        <h2 class="text-4xl font-bold text-white mb-2">
+                            <p>{{ message }}</p>
+                        </h2>
+                    </div>
                 </div>
-            </div>
-        </button>
-    </div>
+            </button>
+        </div>
+    </PopupElement>
+    </ClientOnly>
 </template>
 
 
@@ -25,6 +34,40 @@ import { useTemplateRef, onMounted, ref } from 'vue'
 import { Triceratops  } from '~/class/Triceratops';
 import { RobotsController } from '~/class/RobotsController';
 import { Score } from '~/class/Score';
+
+    //popup constants
+
+    const emit = defineEmits(["verified", "closed", "hide", "spawnNew"]);
+
+    const props = defineProps({
+        popupId: {
+            type: Number,
+            required: true,
+        },
+    });
+
+    const isOpen = ref(false);
+
+    // Your captcha logic here
+
+    const handleClose = () => {
+        emit("closed", props.popupId);
+        isOpen.value = false;
+    };
+
+    const handleHide = () => {
+        isOpen.value = false;
+        emit("hide", props.popupId);
+    };
+
+    const openCaptcha = () => {
+        // Reset/initialize your captcha
+        isOpen.value = true;
+    };
+
+    const showCaptcha = () => {
+        isOpen.value = true;
+    };
 
 
     const GAME_WIDTH = 600;
@@ -211,4 +254,5 @@ import { Score } from '~/class/Score';
         //window.addEventListener("touchstart", reset, { once: true });
     }
 
+    defineExpose({ openCaptcha, showCaptcha, isOpen });
 </script>

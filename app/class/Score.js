@@ -35,4 +35,8 @@ export class Score {
 
     this.ctx.fillText(scorePadded, scoreX, y);
   }
+
+  getScore() {
+    return this.score
+  }
 }
