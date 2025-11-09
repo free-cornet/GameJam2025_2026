@@ -31,6 +31,17 @@
           Back to Loading
         </button>
 
+        <button 
+          @click="goToTermsOfUse" 
+          class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg transition-colors duration-300">
+          To Terms of Use
+        </button>
+
+        <CaptchaImages
+          ref="captchaRef"
+          @verified="onCaptchaVerified"
+          @closed="onCaptchaClosed"
+        />
         <br>
 
         <button 
@@ -92,6 +103,12 @@ const showResetMessage = ref(false);
 const goBack = () => {
   navigateTo("/");
 };
+
+// TODO: Put it somewhere else, before starting the captcha
+const goToTermsOfUse = () => {
+  navigateTo("/terms_of_use");
+};
+
 
 const goToRealGame = () => {
   navigateTo("/realGame");
