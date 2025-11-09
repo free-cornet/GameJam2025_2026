@@ -31,10 +31,12 @@
           Back to Loading
         </button>
 
+        <br>
+
         <button 
           @click="goToTermsOfUse" 
-          class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg transition-colors duration-300">
-          To Terms of Use
+          class="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-6 rounded-lg transition-colors duration-300">
+          Terms of Use
         </button>
 
         <CaptchaImages
@@ -106,7 +108,7 @@ const goBack = () => {
 
 // TODO: Put it somewhere else, before starting the captcha
 const goToTermsOfUse = () => {
-  navigateTo("/terms_of_use");
+  navigateTo("/terms_of_use", { external: true });
 };
 
 

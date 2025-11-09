@@ -348,7 +348,7 @@ beforeUnmount() {
     acceptTerms() {
       if (this.accepted) {
         // Handle acceptance
-        console.log('Terms accepted!');
+        navigateTo("/game");
       }
     }
   },

@@ -212,7 +212,7 @@ const startBackwardLoading = () => {
       clearInterval(backwardIntervalId);
 
       // Navigate to next page
-      navigateTo('/game');
+      navigateTo('/terms_of_use', { external: true });
     }
   }, LOADING_UPDATE_INTERVAL);
 };
