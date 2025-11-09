@@ -16,3 +16,7 @@ Linux Game Jam 2025 2026
 ## Equipe
 
     Quadrilatère
+
+## To run
+    npm install
+    npm run dev
