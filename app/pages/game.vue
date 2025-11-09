@@ -26,7 +26,7 @@
           :disabled="captchasStarted && (!captchaManager.areAllCaptchasSolved.value || captchaManager.getActivePopupCount.value > 0)"
           @click="startGame"
         >
-          {{ !captchasStarted ? 'Start' : (captchaManager.areAllCaptchasSolved.value && captchaManager.getActivePopupCount.value === 0 ? 'Start Game' : 'Complete CAPTCHAs First') }}
+          {{ !captchasStarted ? 'Start' : (captchaManager.areAllCaptchasSolved.value && captchaManager.getActivePopupCount.value === 0 ? 'Start Game' : 'Solve CAPTCHAs...') }}
         </GameButton>
 
         <GameButton @click="goBack">

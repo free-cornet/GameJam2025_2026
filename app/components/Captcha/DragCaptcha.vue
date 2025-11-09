@@ -46,7 +46,7 @@
                         @dragleave="onDragLeave(target)"
                         @drop="onDrop(target)"
                     >
-                        <span v-if="!target.filled">{{ target.label }}</span>
+                        <span v-if="!target.filled" class="p-1 text-center">{{ target.label }}</span>
                         <span v-else class="text-3xl">{{ getShapeLabel(target.filled) }}</span>
                     </div>
                 </div>
@@ -87,9 +87,6 @@ const isOpen = ref(false);
 const isVerifying = ref(false);
 const feedbackMessage = ref("");
 const feedbackClass = ref("");
-const captchaText = ref("");
-const userInput = ref("");
-const captchaCanvas = ref(null);
 
 
 const shapes = [
@@ -102,9 +99,9 @@ const availableShapes = ref([]);
 const draggedShape = ref(null);
 
 const targets = ref([
-  { id: 'circle', label: 'Drop Circle Here', filled: null, isHovered: false },
-  { id: 'square', label: 'Drop Rectangle Here', filled: null, isHovered: false },
-  { id: 'triangle', label: 'Drop Triangle Here', filled: null, isHovered: false }
+  { id: 'circle', label: 'Drop circle here', filled: null, isHovered: false },
+  { id: 'square', label: 'Drop rectangle here', filled: null, isHovered: false },
+  { id: 'triangle', label: 'Drop triangle here', filled: null, isHovered: false }
 ]);
 
 const resultMessage = ref('');

@@ -12,10 +12,10 @@ export default defineNuxtPlugin(() => {
   // Usage: registerCaptcha(name, component, weight)
   // Higher weight = more likely to be selected randomly
   
-  registerCaptcha("Images", CaptchaImages, 3);
+  registerCaptcha("Images", CaptchaImages, 7);
   registerCaptcha("TicTacToe", CaptchaTicTacToe, 1);
-  registerCaptcha("TextCaptcha", CaptchaText, 2);
-  registerCaptcha("NotARobot", CaptchaNotARobot, 2);
+  registerCaptcha("TextCaptcha", CaptchaText, 3);
+  registerCaptcha("NotARobot", CaptchaNotARobot, 1);
   registerCaptcha("DinoCaptcha", DinoCaptcha, 1);
   registerCaptcha("QuestionCaptcha", QuestionCaptcha, 1);
   registerCaptcha("DragCaptcha", DragCaptcha, 2);

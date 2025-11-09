@@ -6,8 +6,9 @@ export class Triceratops {
         jumpPressed = false;
         jumpInProgress = false;
         falling = false;
-        JUMP_SPEED = 0.6;
-        GRAVITY = 0.4;
+        JUMP_INITIAL_VELOCITY = 0.8;
+        GRAVITY = 0.002;
+        velocityY = 0; // Current vertical velocity
 
         constructor(ctx, canvas, width, height, minJumpHeight, maxJumpHeight) {
             this.ctx = ctx;
@@ -80,29 +81,25 @@ export class Triceratops {
         }
 
         jump(frameTimeDelta) {
-            if (this.jumpPressed) {
-            this.jumpInProgress = true;
+            // Initiate jump when space or click is pressed and dino is on ground
+            if (this.jumpPressed && !this.jumpInProgress && !this.falling) {
+                this.jumpInProgress = true;
+                this.velocityY = -this.JUMP_INITIAL_VELOCITY; // Negative = upward
+                this.falling = true; // Start falling phase immediately
             }
 
-            if (this.jumpInProgress && !this.falling) {
-            if (
-                this.y > this.canvas.value.height - this.minJumpHeight ||
-                (this.y > this.canvas.value.height - this.maxJumpHeight && this.jumpPressed)
-            ) {
-                this.y -= this.JUMP_SPEED * frameTimeDelta;
-            } else {
-                this.falling = true;
-            }
-            } else {
-            if (this.y < this.yStandingPosition) {
-                this.y += this.GRAVITY * frameTimeDelta;
-                if (this.y + this.height > this.canvas.value.height) {
-                this.y = this.yStandingPosition;
+            // Apply gravity and update vertical position
+            if (this.jumpInProgress || this.falling) {
+                this.velocityY += this.GRAVITY * frameTimeDelta; // Apply gravity
+                this.y += this.velocityY * frameTimeDelta;
+
+                // Check if landed
+                if (this.y >= this.yStandingPosition) {
+                    this.y = this.yStandingPosition;
+                    this.velocityY = 0;
+                    this.falling = false;
+                    this.jumpInProgress = false;
                 }
-            } else {
-                this.falling = false;
-                this.jumpInProgress = false;
-            }
             }
         }
 

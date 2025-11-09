@@ -5,29 +5,43 @@
         anchor="center"
         :is-open="isOpen"
         @hide="handleHide"
-        :width="600">
-        <div id="app" style="display: flex; align-items: center; justify-content: center;">
-            <canvas ref="gameCanvas" width="600" height="400" style="border:2px solid grey;"></canvas>
+        :width="500">
+        <div id="app" class="relative w-full flex flex-col items-center justify-center">
+            <div class="relative w-full">
+                <canvas ref="gameCanvas" class="border-2 w-full" width="600" height="400"></canvas>
 
-            <button @click="start(); showText = !showText" v-show="showText"
-                class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
-            >
-                <div 
-                class="bg-gray-800 rounded-2xl shadow-2xl p-8 max-w-2xl w-full mx-4 border-2 border-gray-700"
+                <button @click="handleGameOverClick" v-show="showText"
+                    class="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 rounded w-full h-full"
                 >
-                    <div class="text-center mb-8">
-                        <h2 class="text-4xl font-bold text-white mb-2">
-                            <p>{{ message }}</p>
-                        </h2>
+                    <div 
+                    class="bg-gray-800 rounded-lg shadow-2xl p-4 w-5/6 border-2 border-gray-700 flex flex-col gap-3"
+                    >
+                        <div class="text-center">
+                            <h2 class="text-lg font-bold text-white">
+                                <p>{{ message }}</p>
+                            </h2>
+                        </div>
+                        <div v-if="canValidate" class="flex gap-2 justify-center">
+                            <button
+                                @click.stop="handleValidate"
+                                class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded transition-colors font-semibold"
+                            >
+                                Validate
+                            </button>
+                            <button
+                                @click.stop="handleRetry"
+                                class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded transition-colors font-semibold"
+                            >
+                                Retry
+                            </button>
+                        </div>
                     </div>
-                </div>
-            </button>
+                </button>
+            </div>
         </div>
     </PopupElement>
     </ClientOnly>
 </template>
-
-
 
 <script setup>
 import { useTemplateRef, onMounted, ref, nextTick } from 'vue'
@@ -36,7 +50,6 @@ import { RobotsController } from '~/class/RobotsController';
 import { Score } from '~/class/Score';
 
     //popup constants
-
     const emit = defineEmits(["verified", "closed", "hide", "spawnNew"]);
 
     const props = defineProps({
@@ -86,6 +99,7 @@ import { Score } from '~/class/Score';
 
     const canvas = useTemplateRef('gameCanvas')
     const showText = ref('true')
+    const canValidate = ref(false)
     let ctx = null
     let previousTime = null;
     let triceratops = null;
@@ -95,7 +109,8 @@ import { Score } from '~/class/Score';
     let hasAddedEventListenersForRestart = false;
     let started = false;
     let score = null;
-    let message = "Do your best ! We'll see if you have the dexterity of a human.";
+    let message = "Let's jump (spacebar) to prove you're human!";
+    let lastScore = 0;
 
     onMounted(async () => {
         await nextTick();
@@ -103,6 +118,8 @@ import { Score } from '~/class/Score';
             canvas.value.focus();
             ctx = canvas.value.getContext("2d");
             //start()
+            // Add mouse click listener to canvas
+            canvas.value.addEventListener("click", handleCanvasClick);
         }
     });
 
@@ -224,17 +241,17 @@ import { Score } from '~/class/Score';
         if (gameOver) {
             showGameOver();
             let scoreNum = score.getScore()
+            lastScore = scoreNum;
             if (scoreNum <= 50) {
-                message = "Sheesh... Only a robot can be this bad..."
+                message = "Sheeesh... Only a robot can be this bad!"
+                canValidate.value = false
             }else {
                 if (scoreNum >= 100) {
-                message = "How is that possible ??? Only a robot can be this strong !"
+                message = "Damn... Only a robot can be this good!"
+                canValidate.value = false
                 } else {
-                    message = "Right below me ! You are human."
-                    setTimeout(() => {
-                        emit("verified", props.popupId);
-                        handleClose();
-                    }, 1500);
+                    message = "Mediocre enough to be human."
+                    canValidate.value = true
                 }
             }
             showText.value = true
@@ -265,6 +282,30 @@ import { Score } from '~/class/Score';
 
         //window.addEventListener("keyup", reset, { once: true });
         //window.addEventListener("touchstart", reset, { once: true });
+    }
+
+    function handleGameOverClick() {
+        if (!canValidate.value) {
+            start();
+            showText.value = false;
+        }
+    }
+
+    function handleCanvasClick() {
+        if (triceratops) {
+            triceratops.jumpPressed = true;
+        }
+    }
+
+    function handleValidate() {
+        emit("verified", props.popupId);
+        handleClose();
+    }
+
+    function handleRetry() {
+        canValidate.value = false;
+        start();
+        showText.value = false;
     }
 
     defineExpose({ openCaptcha, showCaptcha, isOpen });

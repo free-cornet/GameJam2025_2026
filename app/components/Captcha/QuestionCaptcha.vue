@@ -49,14 +49,6 @@
                     </div>
 
                     <button
-                        @click="regenerateCaptcha"
-                        class="px-4 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 rounded transition-colors whitespace-nowrap"
-                        :disabled="isVerifying"
-                    >
-                        🔄 New
-                    </button>
-
-                    <button
                         @click="verifyCaptcha"
                         :disabled="isVerifying"
                         class="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white rounded transition-colors whitespace-nowrap"
