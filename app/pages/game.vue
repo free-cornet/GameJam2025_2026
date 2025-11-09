@@ -1,10 +1,13 @@
 <template>
   
   <div class="min-h-screen flex items-center justify-center">
-    <div class="text-center">
-      <h1 class="text-8xl font-bold text-white mb-8" style="font-family: Cardinal;">
-        The legend of human
-      </h1>
+      <div class="text-center">
+        <h1 class="w-full  mb-8 items-center justify-center" style="font-family: Cardinal;">
+          <p class="text-8xl text-white font-bold">The Legend of Humans: </p>
+          <p class="text-3xl w-[40%] mx-auto font-bold text-gray-200 mb-8">Age of Mythology, Kingdom of Dragons, Imperium of Demons, Symphony of Angels, Forge of Dwarfs, Legacy of Golems, Abyss of Whisperers, Great Library of Sages, Doom of the Worlds, Astral Plan of Shir & World Tree of Elves
+          </p>
+          <p class="text-4xl font-bold text-amber-400 mb-8">Remastered Super Deluxe Edition</p>
+        </h1>
 
       <!-- Active CAPTCHAs counter -->
       <div v-if="captchaManager.getActivePopupCount.value > 0" class="mb-4 text-yellow-300 font-semibold">
