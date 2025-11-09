@@ -5,6 +5,7 @@ import CaptchaText from "~/components/Captcha/TextCaptcha.vue";
 import CaptchaNotARobot from "~/components/Captcha/NotARobot.vue";
 import DinoCaptcha from "~/components/Captcha/DinoCaptcha.vue";
 import QuestionCaptcha from "~/components/Captcha/QuestionCaptcha.vue";
+import DragCaptcha  from "~/components/Captcha/DragCaptcha.vue";
 
 export default defineNuxtPlugin(() => {
   // Register all captcha types here
@@ -16,7 +17,8 @@ export default defineNuxtPlugin(() => {
   registerCaptcha("TextCaptcha", CaptchaText, 2);
   registerCaptcha("NotARobot", CaptchaNotARobot, 2);
   registerCaptcha("DinoCaptcha", DinoCaptcha, 1);
-  registerCaptcha("QuestionCaptcha", QuestionCaptcha, 10);
+  registerCaptcha("QuestionCaptcha", QuestionCaptcha, 1);
+  registerCaptcha("DragCaptcha", DragCaptcha, 2);
   
   // To add a new captcha:
   // 1. Import the component above
