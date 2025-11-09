@@ -1,42 +1,42 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 flex items-center justify-center">
+  
+  <div class="min-h-screen flex items-center justify-center">
     <div class="text-center">
-      <h1 class="text-6xl font-bold text-white mb-8 animate-pulse">
-        🎮 Game Ready!
+      <h1 class="text-8xl font-bold text-white mb-8" style="font-family: Cardinal;">
+        The legend of human
       </h1>
-      
-      <p class="text-xl text-gray-300 mb-8">
-        Welcome to the game! Loading completed successfully.
-      </p>
 
       <!-- Active CAPTCHAs counter -->
       <div v-if="captchaManager.getActivePopupCount.value > 0" class="mb-4 text-yellow-300 font-semibold">
         Solve {{ captchaManager.getActivePopupCount.value }} CAPTCHA{{ captchaManager.getActivePopupCount.value !== 1 ? 's' : '' }} to continue...
       </div>
       
-      <div class="space-y-4">
+      <div class="space-y-10">
         <button 
           @click="startGame"
           :disabled="!captchaManager.allPopupsSolved.value"
-          class="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-500 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-300"
-        >
-          Start Game
+          class="hover:opacity-80 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-300 bg-contain bg-center bg-no-repeat"
+          :style="{ backgroundImage: `url(${button4})`, scale: 1.7}">
+          <div style="scale: 0.8;">Start Game</div>
         </button>
         
         <br>
         
         <button 
           @click="goBack" 
-          class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg transition-colors duration-300">
-          Back to Loading
+          class="hover:opacity-80 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-300 bg-contain bg-center bg-no-repeat"
+          :style="{ backgroundImage: `url(${button4})`, scale: 1.7}">
+          
+          <div style="scale: 0.6;">Back to Loading</div>
         </button>
 
         <br>
 
         <button 
           @click="goToTermsOfUse" 
-          class="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-6 rounded-lg transition-colors duration-300">
-          Terms of Use
+          class="hover:opacity-80 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-300 bg-contain bg-center bg-no-repeat"
+          :style="{ backgroundImage: `url(${button4})`, scale: 1.7}">
+          <div style="scale: 0.8;">Terms of Use</div>
         </button>
 
         <CaptchaImages
@@ -48,8 +48,9 @@
 
         <button 
           @click="reset" 
-          class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-lg transition-colors duration-300">
-          Reset game
+          class="hover:opacity-80 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-300 bg-contain bg-center bg-no-repeat"
+          :style="{ backgroundImage: `url(${button4})`, scale: 1.7}">
+          <div style="scale: 0.8;">Reset game</div>
         </button>
         <div v-if="showResetMessage" class="text-white mt-4">
           Game reset
@@ -91,11 +92,25 @@
     </div>
   </div>
 </template>
+<style>
+body {
+  background-image: url('../assets/background.jpg');
+  background-size: cover;
+}
+@font-face {
+    font-family: Cardinal;
+    src: url('../assets/Cardinal.ttf');
+}
+</style>
 
 <script setup>
 import { ref } from "vue";
 import { useCaptchaManager } from "~/composables/useCaptchaManager";
 import CaptchaWrapper from "~/components/CaptchaWrapper.vue";
+import button1 from '../assets/button1.png';
+import button2 from '../assets/button2.png';
+import button3 from '../assets/button3.png';
+import button4 from '../assets/button4.png';
 
 const captchaManager = useCaptchaManager();
 const INITIAL_CAPTCHA_COUNT = 1; // Number of CAPTCHAs to spawn initially

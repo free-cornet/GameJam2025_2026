@@ -1,10 +1,10 @@
 <template>
   <div
-    class="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 flex items-center justify-center"
+    class="min-h-screen flex items-center justify-center"
   >
     <div class="text-center">
       <!-- Loading Title -->
-      <h1 class="text-4xl md:text-6xl font-bold text-white mb-8 animate-pulse">
+      <h1 class="text-4xl md:text-8xl font-bold text-white mb-8" style="font-family: Cardinal;">
         Loading Game
       </h1>
 
@@ -12,7 +12,7 @@
       <div class="w-80 md:w-96 mx-auto mb-6">
         <div class="relative bg-gray-700 rounded-full h-4 overflow-visible shadow-lg">
           <div
-            class="bg-gradient-to-r from-blue-400 to-purple-500 h-full rounded-full transition-all duration-500 ease-out relative"
+            class="bg-gradient-to-r from-green-400 to-green-900 h-full rounded-full transition-all duration-500 ease-out relative"
             :style="{ width: `${Math.min(100, displayPercentage)}%` }"
           >
             <!-- Knight Image -->
@@ -37,19 +37,19 @@
 
       <!-- Loading Dots Animation -->
       <div class="flex justify-center space-x-2">
-        <div class="w-3 h-3 bg-blue-400 rounded-full animate-bounce"></div>
+        <div class="w-3 h-3 bg-green-200 rounded-full animate-bounce"></div>
         <div
-          class="w-3 h-3 bg-purple-400 rounded-full animate-bounce"
+          class="w-3 h-3 bg-green-500 rounded-full animate-bounce"
           style="animation-delay: 0.1s"
         ></div>
         <div
-          class="w-3 h-3 bg-indigo-400 rounded-full animate-bounce"
+          class="w-3 h-3 bg-green-900 rounded-full animate-bounce"
           style="animation-delay: 0.2s"
         ></div>
       </div>
 
       <!-- Loading Message with dots -->
-      <p class="text-gray-300 mt-6 text-lg w-screen overflow-hidden">
+      <p class="text-neutral-50 mt-6 text-lg w-screen overflow-hidden">
         {{ loadingMessage }}
         <span class="relative">
           <span class="absolute left-0 text-left">
@@ -60,6 +60,16 @@
     </div>
   </div>
 </template>
+<style>
+body {
+  background-image: url('../assets/background.jpg');
+  background-size: cover;
+}
+@font-face {
+    font-family: Cardinal;
+    src: url('../assets/Cardinal.ttf');
+}
+</style>
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from "vue";

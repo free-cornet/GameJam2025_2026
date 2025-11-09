@@ -21,6 +21,16 @@
     ></div>
   </div>
 </template>
+<style>
+body {
+  background-image: url('../assets/night.svg');
+  background-size: cover;
+}
+@font-face {
+    font-family: Cardinal;
+    src: url('../assets/Cardinal.ttf');
+}
+</style>
 
 <script>
 export default {

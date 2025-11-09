@@ -1,5 +1,5 @@
 <template>
-    <div class="h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 flex items-center justify-center">
+    <div class="h-screen flex items-center justify-center">
         <div class="bg-white rounded-2xl shadow-xl p-10 flex flex-col items-center w-3/5">
         
         <!-- Title and Date (above scrollable div) -->
@@ -252,6 +252,17 @@
     </div>
 
 </template>
+<style>
+body {
+  background-image: url('../assets/background.jpg');
+  background-size: cover;
+}
+@font-face {
+    font-family: Cardinal;
+    src: url('../assets/Cardinal.ttf');
+}
+</style>
+
 
 <script>
 export default {
