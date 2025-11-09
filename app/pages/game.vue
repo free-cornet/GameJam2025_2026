@@ -2,14 +2,15 @@
   
   <div id="app" class="min-h-screen flex items-center justify-center p-10">
       <!-- Warning Banner at Top -->
-      <div v-if="showError42Warning" class="fixed top-2 mx-2 max-w-xl w-full bg-orange-700 border-2 rounded border-orange-800 p-4 z-50 shadow-lg">
+      <div v-if="showError42Warning" class="absolute top-0 left-1/2 -translate-x-1/2 max-w-xl bg-orange-700 border-2 rounded-b border-orange-800 p-4 z-50 shadow-lg">
         <div class="text-center">
           <p class="text-white text-lg font-bold">⚠️ ERROR 42: Failed to verify you're a human :(</p>
+          <p class="text-white text-lg font-bold">Please solve one more captcha...</p>
         </div>
       </div>
 
-      <div class="text-center" :class="{ 'pt-20': showError42Warning }">
-        <h1 class="w-full  mb-8 items-center justify-center" style="font-family: Cardinal;">
+      <div class="text-center">
+        <h1 class="w-full mb-8 items-center justify-center" style="font-family: Cardinal;">
           <p class="text-8xl text-white font-bold">The Legend of Humans: </p>
           <p class="text-3xl w-[40%] mx-auto font-bold text-gray-200 mb-8">Age of Mythology, Kingdom of Dragons, Imperium of Demons, Symphony of Angels, Forge of Dwarfs, Legacy of Golems, Abyss of Whisperers, Great Library of Sages, Doom of the Worlds, Astral Plan of Shir & World Tree of Elves
           </p>
@@ -200,17 +201,19 @@ const onCaptchaVerified = (popupId) => {
     console.log("Not all types solved - showing error 42");
     showError42Warning.value = true;
     
-    // Hide warning and spawn new captcha after 2 seconds
+    // Spawn new captcha after 2 seconds
     setTimeout(() => {
-      showError42Warning.value = false;
-      
-      // Spawn a new CAPTCHA (will be a different type than already solved)
       const newPopupId = captchaManager.addPopup();
       captchaManager.savePopupState();
       setTimeout(() => {
         captchaManager.openCaptcha(newPopupId);
       }, 50);
     }, 2000);
+    
+    // Hide warning after 4 seconds
+    setTimeout(() => {
+      showError42Warning.value = false;
+    }, 4000);
   }
 };
 
