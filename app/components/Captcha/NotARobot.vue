@@ -126,7 +126,7 @@ const handleClick = () => {
 const verifyCaptcha = () => {
     isVerifying.value = true;
     if (doneNumber === 1 && !isVerified.value && !isLoading.value) {
-        feedbackMessage.value = "We have some doubt...";
+        feedbackMessage.value = "We still have some doubts...";
         feedbackClass.value = "bg-red-50 border border-red-200 text-red-700";
     } else if (doneNumber === 2 && !isVerified.value && !isLoading.value) {
         feedbackMessage.value = "An error occured, please try again.";
