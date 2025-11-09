@@ -23,12 +23,12 @@
 </template>
 <style scoped>
 #app {
-  background-image: url('../assets/night.svg') !important;
+  background-image: url('/night.svg') !important;
   background-size: cover;
 }
 @font-face {
     font-family: Cardinal;
-    src: url('../assets/Cardinal.ttf');
+    src: url('/Cardinal.ttf');
 }
 </style>
 

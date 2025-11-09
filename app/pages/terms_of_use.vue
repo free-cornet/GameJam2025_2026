@@ -254,12 +254,12 @@
 </template>
 <style>
 body {
-  background-image: url('../assets/background.jpg');
+  background-image: url('/background.jpg');
   background-size: cover;
 }
 @font-face {
     font-family: Cardinal;
-    src: url('../assets/Cardinal.ttf');
+    src: url('/Cardinal.ttf');
 }
 </style>
 
