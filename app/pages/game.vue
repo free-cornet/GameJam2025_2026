@@ -118,7 +118,23 @@ const captchasStarted = ref(false);
 const showError42Warning = ref(false);
 
 onMounted(() => {
-  // Don't initialize captchas automatically - wait for user to click Start
+  // Check if there's a saved state from a previous session
+  captchaManager.loadSolvedCaptchas();
+  
+  const savedPopupState = captchaManager.loadPopupState();
+  if (savedPopupState && captchaManager.popups.value.length > 0) {
+    // Restore the previous captcha session
+    captchasStarted.value = true;
+    
+    // Reopen all the captchas that were previously open
+    setTimeout(() => {
+      captchaManager.popups.value.forEach((popup) => {
+        if (popup.isOpen) {
+          captchaManager.openCaptcha(popup.id);
+        }
+      });
+    }, 50);
+  }
 });
 
 const goBack = () => {
@@ -139,6 +155,7 @@ const startGame = () => {
   // Initialize captchas if not already started
   if (!captchasStarted.value) {
     captchasStarted.value = true;
+    captchaManager.saveInitialCaptchaCount(INITIAL_CAPTCHA_COUNT);
     initializeCaptchas();
   }
 };
@@ -161,6 +178,7 @@ const onCaptchaVerified = (popupId) => {
   }
   
   captchaManager.removePopup(popupId);
+  captchaManager.savePopupState();
 
   // Check if there are still open captchas that need to be solved
   if (captchaManager.getActivePopupCount.value > 0) {
@@ -173,6 +191,7 @@ const onCaptchaVerified = (popupId) => {
   if (captchaManager.areAllCaptchasSolved.value) {
     // All types solved - allow progression
     console.log("All CAPTCHA types solved! Proceeding to game...");
+    captchaManager.clearStorage(); // Clear storage on successful completion
     setTimeout(() => {
       goToRealGame();
     }, 500);
@@ -187,6 +206,7 @@ const onCaptchaVerified = (popupId) => {
       
       // Spawn a new CAPTCHA (will be a different type than already solved)
       const newPopupId = captchaManager.addPopup();
+      captchaManager.savePopupState();
       setTimeout(() => {
         captchaManager.openCaptcha(newPopupId);
       }, 50);
@@ -207,6 +227,7 @@ const onCaptchaSpawnNew = (popupId) => {
   console.log(`CAPTCHA ${popupId} failed! Spawning additional puzzle...`);
   // Spawn a new CAPTCHA on failure (will be a different type if possible)
   const newPopupId = captchaManager.addPopup();
+  captchaManager.savePopupState();
   setTimeout(() => {
     captchaManager.openCaptcha(newPopupId);
   }, 50);

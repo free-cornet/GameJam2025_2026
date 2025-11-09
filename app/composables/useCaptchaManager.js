@@ -84,6 +84,108 @@ export const useCaptchaManager = () => {
   const solvedCaptchas = ref(new Set()); // Track which captcha types have been solved
   let popupIdCounter = 0;
 
+  // Local storage keys
+  const STORAGE_INITIAL_COUNT_KEY = 'captcha_initial_count';
+  const STORAGE_SOLVED_KEY = 'captcha_solved_types';
+  const STORAGE_POPUP_STATE_KEY = 'captcha_popup_state';
+  const STORAGE_POPUP_COUNTER_KEY = 'captcha_popup_id_counter';
+
+  /**
+   * Save initial captcha count to local storage
+   */
+  const saveInitialCaptchaCount = (count) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_INITIAL_COUNT_KEY, count.toString());
+    }
+  };
+
+  /**
+   * Get initial captcha count from local storage
+   */
+  const getInitialCaptchaCount = () => {
+    if (typeof window !== 'undefined') {
+      return parseInt(localStorage.getItem(STORAGE_INITIAL_COUNT_KEY) || '0', 10);
+    }
+    return 0;
+  };
+
+  /**
+   * Save solved captcha types to local storage
+   */
+  const saveSolvedCaptchas = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_SOLVED_KEY, JSON.stringify(Array.from(solvedCaptchas.value)));
+    }
+  };
+
+  /**
+   * Load solved captcha types from local storage
+   */
+  const loadSolvedCaptchas = () => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(STORAGE_SOLVED_KEY);
+      if (saved) {
+        try {
+          solvedCaptchas.value = new Set(JSON.parse(saved));
+        } catch (e) {
+          console.error('Failed to load solved captchas from storage:', e);
+        }
+      }
+    }
+  };
+
+  /**
+   * Save current popup state to local storage
+   */
+  const savePopupState = () => {
+    if (typeof window !== 'undefined') {
+      const state = popups.value.map(p => ({
+        id: p.id,
+        captchaType: p.captchaType,
+        isVisible: p.isVisible,
+        isOpen: p.isOpen,
+      }));
+      localStorage.setItem(STORAGE_POPUP_STATE_KEY, JSON.stringify(state));
+      localStorage.setItem(STORAGE_POPUP_COUNTER_KEY, popupIdCounter.toString());
+    }
+  };
+
+  /**
+   * Load popup state from local storage
+   */
+  const loadPopupState = () => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(STORAGE_POPUP_STATE_KEY);
+      const savedCounter = localStorage.getItem(STORAGE_POPUP_COUNTER_KEY);
+      
+      if (saved) {
+        try {
+          const state = JSON.parse(saved);
+          popups.value = state;
+          if (savedCounter) {
+            popupIdCounter = parseInt(savedCounter, 10);
+          }
+          return true;
+        } catch (e) {
+          console.error('Failed to load popup state from storage:', e);
+        }
+      }
+    }
+    return false;
+  };
+
+  /**
+   * Clear all stored captcha data
+   */
+  const clearStorage = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(STORAGE_INITIAL_COUNT_KEY);
+      localStorage.removeItem(STORAGE_SOLVED_KEY);
+      localStorage.removeItem(STORAGE_POPUP_STATE_KEY);
+      localStorage.removeItem(STORAGE_POPUP_COUNTER_KEY);
+    }
+  };
+
   const addPopup = (captchaType = null) => {
     // If no type specified, pick a random one (but not one already solved)
     let type = captchaType;
@@ -175,6 +277,7 @@ export const useCaptchaManager = () => {
 
   const markCaptchaSolved = (captchaType) => {
     solvedCaptchas.value.add(captchaType);
+    saveSolvedCaptchas();
   };
 
   const isCaptchaSolved = (captchaType) => {
@@ -221,5 +324,12 @@ export const useCaptchaManager = () => {
     getSolvedCaptchasCount,
     getTotalCaptchasCount,
     solvedCaptchas,
+    saveInitialCaptchaCount,
+    getInitialCaptchaCount,
+    saveSolvedCaptchas,
+    loadSolvedCaptchas,
+    savePopupState,
+    loadPopupState,
+    clearStorage,
   };
 };
