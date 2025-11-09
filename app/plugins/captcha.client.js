@@ -2,6 +2,7 @@ import { registerCaptcha } from "~/composables/useCaptchaManager";
 import CaptchaImages from "~/components/Captcha/Images.vue";
 import CaptchaTicTacToe from "~/components/Captcha/TicTacToe.vue";
 import CaptchaText from "~/components/Captcha/TextCaptcha.vue";
+import CaptchaNotARobot from "~/components/Captcha/NotARobot.vue";
 
 export default defineNuxtPlugin(() => {
   // Register all captcha types here
@@ -11,6 +12,7 @@ export default defineNuxtPlugin(() => {
   registerCaptcha("Images", CaptchaImages, 3);
   registerCaptcha("TicTacToe", CaptchaTicTacToe, 1);
   registerCaptcha("TextCaptcha", CaptchaText, 2);
+  registerCaptcha("NotARobot", CaptchaNotARobot, 2);
   
   // To add a new captcha:
   // 1. Import the component above
