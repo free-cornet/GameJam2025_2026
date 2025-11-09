@@ -21,9 +21,9 @@
     ></div>
   </div>
 </template>
-<style>
-body {
-  background-image: url('../assets/night.svg');
+<style scoped>
+#app {
+  background-image: url('../assets/night.svg') !important;
   background-size: cover;
 }
 @font-face {

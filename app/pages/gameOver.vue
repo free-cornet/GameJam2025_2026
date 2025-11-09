@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center">
+  <div id="app" class="min-h-screen flex items-center justify-center">
     <div class="text-center">
       <h1 class="text-6xl font-bold text-white mb-8" style="font-family: Cardinal;">
         Game Over !!
@@ -29,7 +29,11 @@
     </div>
   </div>
 </template>
-<style>
+<style scoped>
+#app {
+  background-image: url('../assets/background.jpg');
+  background-size: cover;
+}
 @font-face {
     font-family: Cardinal;
     src: url('../assets/Cardinal.ttf');

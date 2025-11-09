@@ -6,7 +6,7 @@
         :is-open="isOpen"
         @hide="handleHide"
         :width="600">
-        <div id="app" style="display: flex; align-items: center; justify-content: center; height: 100vh;">
+        <div id="app" style="display: flex; align-items: center; justify-content: center;">
             <canvas ref="gameCanvas" width="600" height="400" style="border:2px solid grey;"></canvas>
 
             <button @click="start(); showText = !showText" v-show="showText"

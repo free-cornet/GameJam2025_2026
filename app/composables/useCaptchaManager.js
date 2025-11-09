@@ -25,6 +25,32 @@ export const getRegisteredCaptchas = () => {
 };
 
 /**
+ * Get a random captcha type based on weights (excluding already solved ones)
+ */
+export const getRandomUnsolvedCaptchaType = (solvedSet = new Set()) => {
+  const captchas = Array.from(captchaRegistry.values()).filter(
+    (captcha) => !solvedSet.has(captcha.name)
+  );
+  
+  if (captchas.length === 0) {
+    // All captchas solved, return any random one
+    return getRandomCaptchaType();
+  }
+  
+  const totalWeight = captchas.reduce((sum, captcha) => sum + captcha.weight, 0);
+  let random = Math.random() * totalWeight;
+  
+  for (const captcha of captchas) {
+    random -= captcha.weight;
+    if (random <= 0) {
+      return captcha.name;
+    }
+  }
+  
+  return captchas[0]?.name;
+};
+
+/**
  * Get a random captcha type based on weights
  */
 export const getRandomCaptchaType = () => {
@@ -55,11 +81,18 @@ export const getCaptchaComponent = (type) => {
 export const useCaptchaManager = () => {
   const popups = ref([]);
   const captchaRefs = ref({});
+  const solvedCaptchas = ref(new Set()); // Track which captcha types have been solved
   let popupIdCounter = 0;
 
   const addPopup = (captchaType = null) => {
-    // If no type specified, pick a random one
-    const type = captchaType || getRandomCaptchaType();
+    // If no type specified, pick a random one (but not one already solved)
+    let type = captchaType;
+    
+    if (!type) {
+      // Get a random captcha type that hasn't been solved yet
+      type = getRandomUnsolvedCaptchaType(solvedCaptchas.value);
+    }
+    
     const id = popupIdCounter++;
     
     popups.value.push({
@@ -136,8 +169,34 @@ export const useCaptchaManager = () => {
   const reset = () => {
     popups.value = [];
     captchaRefs.value = {};
+    solvedCaptchas.value = new Set();
     popupIdCounter = 0;
   };
+
+  const markCaptchaSolved = (captchaType) => {
+    solvedCaptchas.value.add(captchaType);
+  };
+
+  const isCaptchaSolved = (captchaType) => {
+    return solvedCaptchas.value.has(captchaType);
+  };
+
+  const getAllCaptchaTypes = () => {
+    return getRegisteredCaptchas();
+  };
+
+  const areAllCaptchasSolved = computed(() => {
+    const allTypes = getAllCaptchaTypes();
+    return allTypes.every((type) => solvedCaptchas.value.has(type));
+  });
+
+  const getSolvedCaptchasCount = computed(() => {
+    return solvedCaptchas.value.size;
+  });
+
+  const getTotalCaptchasCount = computed(() => {
+    return getRegisteredCaptchas().length;
+  });
 
   return {
     popups,
@@ -155,5 +214,12 @@ export const useCaptchaManager = () => {
     getHiddenPopups,
     reset,
     getCaptchaComponent,
+    markCaptchaSolved,
+    isCaptchaSolved,
+    getAllCaptchaTypes,
+    areAllCaptchasSolved,
+    getSolvedCaptchasCount,
+    getTotalCaptchasCount,
+    solvedCaptchas,
   };
 };
