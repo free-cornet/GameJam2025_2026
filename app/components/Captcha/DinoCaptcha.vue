@@ -30,7 +30,7 @@
 
 
 <script setup>
-import { useTemplateRef, onMounted, ref } from 'vue'
+import { useTemplateRef, onMounted, ref, nextTick } from 'vue'
 import { Triceratops  } from '~/class/Triceratops';
 import { RobotsController } from '~/class/RobotsController';
 import { Score } from '~/class/Score';
@@ -80,8 +80,8 @@ import { Score } from '~/class/Score';
     const GAME_SPEED_INCREMENT = 0.00002;
     const ROBOT_SPEED = 0.5;
     const ROBOT_CONFIG = [
-        {width: 60, height: 60, image: "../assets/robot.png"},
-        {width: 60, height: 82, image: "../assets/robot_high.png"},
+        {width: 60, height: 60, image: "/captcha/dino/robot.png"},
+        {width: 60, height: 82, image: "/captcha/dino/robot_high.png"},
     ]
 
     const canvas = useTemplateRef('gameCanvas')
@@ -97,12 +97,14 @@ import { Score } from '~/class/Score';
     let score = null;
     let message = "Faites de votre mieux ! Nous verrons si vous avez l'habileté d'un être humain.";
 
-    onMounted(() => {
-        console.log(showText)
-        canvas.value.focus()
-        ctx = canvas.value.getContext("2d");
-        //start()
-    })
+    onMounted(async () => {
+        await nextTick();
+        if (canvas.value) {
+            canvas.value.focus();
+            ctx = canvas.value.getContext("2d");
+            //start()
+        }
+    });
 
     function setScreen() {
         canvas.width = GAME_WIDTH;
@@ -111,6 +113,10 @@ import { Score } from '~/class/Score';
     }
 
     function clearScreen () {
+        if (ctx == null && canvas.value != null) {
+            canvas.value.focus();
+            ctx = canvas.value.getContext("2d");
+        }
         ctx.fillStyle = "white"
         ctx.fillRect(0,0, canvas.value.width, canvas.value.height)
     }
@@ -218,15 +224,17 @@ import { Score } from '~/class/Score';
         if (gameOver) {
             showGameOver();
             let scoreNum = score.getScore()
-            console.log(scoreNum)
             if (scoreNum <= 50) {
                 message = "Pfff... Seule un robot peut être aussi nul..."
             }else {
                 if (scoreNum >= 100) {
                 message = "Comment est-ce possible ??? Seule un robot peut être aussi fort !"
                 } else {
-                    //TODO won
                     message = "Juste en dessous de moi, c'est bon tu es un humain !"
+                    setTimeout(() => {
+                        emit("verified", props.popupId);
+                        handleClose();
+                    }, 1500);
                 }
             }
             showText.value = true
@@ -245,6 +253,11 @@ import { Score } from '~/class/Score';
         }
 
         started = true
+
+        if (ctx == null && canvas.value != null) {
+            canvas.value.focus();
+            ctx = canvas.value.getContext("2d");
+        }
 
         setScreen();
 
