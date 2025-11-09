@@ -95,7 +95,7 @@ import { Score } from '~/class/Score';
     let hasAddedEventListenersForRestart = false;
     let started = false;
     let score = null;
-    let message = "Faites de votre mieux ! Nous verrons si vous avez l'habileté d'un être humain.";
+    let message = "Do your best ! We'll see if you have the dexterity of a human.";
 
     onMounted(async () => {
         await nextTick();
@@ -225,12 +225,12 @@ import { Score } from '~/class/Score';
             showGameOver();
             let scoreNum = score.getScore()
             if (scoreNum <= 50) {
-                message = "Pfff... Seule un robot peut être aussi nul..."
+                message = "Sheesh... Only a robot can be this bad..."
             }else {
                 if (scoreNum >= 100) {
-                message = "Comment est-ce possible ??? Seule un robot peut être aussi fort !"
+                message = "How is that possible ??? Only a robot can be this strong !"
                 } else {
-                    message = "Juste en dessous de moi, c'est bon tu es un humain !"
+                    message = "Right below me ! You are human."
                     setTimeout(() => {
                         emit("verified", props.popupId);
                         handleClose();
