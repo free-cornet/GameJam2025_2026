@@ -11,7 +11,7 @@
                 <!-- Instructions -->
                 <div class="mb-4 p-3 bg-blue-50 rounded border border-blue-200">
                     <p class="text-sm text-gray-700">
-                        <span class="font-semibold">Answer the question :</span>
+                        <span class="font-semibold">Answer the question : What is love ?</span>
                     </p>
                 </div>
 

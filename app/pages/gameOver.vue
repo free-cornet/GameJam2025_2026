@@ -6,7 +6,7 @@
       </h1>
       
       <p class="text-xl text-gray-300 mb-8">
-        Le problème se trouve toujours entre la chaise et l'écran
+        The problem is still between the chair and the screen
       </p>
       
       <div class="space-y-8">

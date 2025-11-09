@@ -269,7 +269,7 @@ export default {
     },
 
     gameOver(){
-      this.trapCount += 1;
+      this.trapCount = (this.trapCount + 1) % 2;
       localStorage.setItem('trapCount', this.trapCount);
       navigateTo("./gameOver");
     },
