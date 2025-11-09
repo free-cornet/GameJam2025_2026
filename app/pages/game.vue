@@ -60,18 +60,42 @@
         />
       </ClientOnly>
 
-      <!-- Hidden Popups List (Bottom Left) -->
+      <!-- Captcha Todo List (Bottom Left) -->
       <ClientOnly>
-        <div v-if="captchaManager.getHiddenPopups.value.length > 0" class="fixed bottom-4 left-4 bg-gray-800 border-2 border-gray-600 rounded-lg p-4 z-40 shadow-2xl">
-          <h3 class="text-white font-bold mb-3 text-sm">Hidden CAPTCHAs</h3>
+        <div v-if="captchaManager.popups.value.length > 0" class="fixed bottom-4 left-4 bg-gradient-to-b from-slate-900 to-slate-800 border-2 border-blue-500 rounded-lg p-4 z-40 shadow-2xl w-80 max-h-96 overflow-y-auto">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-white font-bold text-sm flex items-center gap-2">
+              <span class="text-lg">✓</span>
+              To Do
+            </h3>
+            <span class="bg-blue-600 text-white text-xs px-2 py-1 rounded-full font-semibold">
+              {{ captchaManager.popups.value.length }}
+            </span>
+          </div>
+
           <div class="space-y-2">
+            <!-- Active and Hidden Captchas -->
+            <div v-if="captchaManager.popups.value.length === 0" class="text-center py-4">
+              <p class="text-green-400 font-semibold">All done! 🎉</p>
+            </div>
             <button
-              v-for="popup in captchaManager.getHiddenPopups.value"
-              :key="`hidden-${popup.id}`"
-              @click="captchaManager.showCaptchaPopup(popup.id)"
-              class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded text-sm transition-colors"
+              v-for="popup in captchaManager.popups.value"
+              :key="`todo-${popup.id}`"
+              @click="toggleCaptchaVisibility(popup.id)"
+              class="w-full text-left px-3 py-2 rounded transition-all"
+              :class="[
+                popup.isVisible 
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white border border-blue-500 font-semibold'
+                  : 'bg-slate-700 hover:bg-slate-600 text-slate-200 border border-slate-600'
+              ]"
             >
-              CAPTCHA #{{ popup.id + 1 }}
+              <div class="flex items-center justify-between">
+                <span class="flex items-center gap-2">
+                  <span class="text-lg">{{ popup.isVisible ? '●' : '◯' }}</span>
+                  <span class="capitalize">{{ formatCaptchaName(popup.captchaType) }}</span>
+                </span>
+                <span v-if="!popup.isVisible" class="text-xs text-slate-400">hidden</span>
+              </div>
             </button>
           </div>
         </div>
@@ -191,5 +215,33 @@ const onCaptchaSpawnNew = (popupId) => {
 const reset = () => {
   localStorage.setItem('trapCount', '0');
   showResetMessage.value = true;
+};
+
+const toggleCaptchaVisibility = (popupId) => {
+  const popup = captchaManager.popups.value.find((p) => p.id === popupId);
+  if (popup) {
+    if (popup.isVisible) {
+      captchaManager.hidePopup(popupId);
+      // Close the captcha component itself
+      const captcha = captchaManager.captchaRefs.value[popupId];
+      if (captcha && captcha.isOpen) {
+        captcha.isOpen.value = false;
+      }
+    } else {
+      captchaManager.showCaptchaPopup(popupId);
+    }
+  }
+};
+
+const formatCaptchaName = (name) => {
+  // Convert camelCase or kebab-case to Title Case
+  return name
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/-/g, ' ')
+    .toLowerCase()
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+    .trim();
 };
 </script>
